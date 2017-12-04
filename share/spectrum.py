@@ -25,6 +25,7 @@ from pprint import pformat
 from envr.session import get_session
 from share.internal_index import Entry
 import reader.mzxml as mzxml
+import reader.mzml as mzml
 # ====END OF MODULE IMPORT====
 
 
@@ -61,6 +62,8 @@ class Spectrum(Entry):
     def _get_peaks(self):
         if self.format.lower() == '.mzxml':
             return mzxml.get_peaks(self.get_file_path(), self.offset)
+        elif self.format.lower() == '.mzml':
+            return mzml.get_peaks(self.get_file_path(), self.offset)
 
     def is_sorted(self):
         if len(self.mz) < 2:

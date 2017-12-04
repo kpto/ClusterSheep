@@ -25,7 +25,7 @@ import numpy as np
 
 
 # ====BEGIN OF GLOBAL VARIABLE DECLARATION====
-VERSION = '0.90.1'
+VERSION = '0.90.3'
 NAME = 'SpectraCLUST'
 
 # size of the header of customized file format for metadata

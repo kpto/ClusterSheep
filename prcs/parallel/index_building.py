@@ -304,7 +304,11 @@ def _worker(pid, q, temp_storage, valid_ms2_count, total_ms2_count, finish_count
             if item:
                 file_id, path = item
                 try:
-                    index, valid, total = mzxml.build_index(path, log_lock=log_lock)
+                    format_ = ''.join(path.suffixes).lower()
+                    if format_ == '.mzxml':
+                        index, valid, total = mzxml.build_index(path, log_lock=log_lock)
+                    elif format_ == '.mzml':
+                        index, valid, total = mzml.build_index(path, log_lock=log_lock)
                 except Exception:
                     if ignore_errors:
                         wrn_msg = 'Subprocess {}: Failed to parse MS exp file: {}'.format(pid, path)

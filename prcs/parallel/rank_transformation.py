@@ -32,6 +32,7 @@ from prcs.parallel.logging_setup import logging_setup
 from prcs.parallel.binning import _binning
 from property import *
 import reader.mzxml as mzxml
+import reader.mzml as mzml
 # ====END OF MODULE IMPORT====
 
 
@@ -236,6 +237,7 @@ def _worker(pid, dispatcher, offsets, log_lock, merge_lock, exit_signal):
                     precursor_mass, precursor_charge = temp_index.precursor_mass[i], temp_index.precursor_charge[i]
                     format_ = ''.join(file.suffixes).lower()
                     if format_ == '.mzxml': peaks = mzxml.get_peaks(file, offset, log_lock)
+                    elif format_ == '.mzml': peaks = mzml.get_peaks(file, offset, log_lock)
                     temp_mz[i], temp_intensity[i] = _rank_transform(precursor_mass, precursor_charge,
                                                                     peaks[0], peaks[1], log_lock)
 

@@ -99,7 +99,7 @@ def build_index(file, log_lock=Lock()):
                               .format(start_pos, scan_num, ms_level, peaks_count, precursor_mz, precursor_charge)
                     with log_lock:
                         logging.error(err_msg)
-                    raise SyntaxError(err_msg)
+                    raise
 
             if peaks_count >= min_num_peaks:
                 if true_precursor_mass:
@@ -262,7 +262,7 @@ def _get_peaks_raw(file, offset, log_lock=Lock()):
         except Exception:
             if not ignore_errors:
                 err_msg = '\nUnable to get the necessary information.'\
-                          '\nPrecision: {}'.format(precision)
+                          '\nPrecision: {}    Compression: {}'.format(precision, compression)
                 with log_lock:
                     logging.error(err_msg)
             raise

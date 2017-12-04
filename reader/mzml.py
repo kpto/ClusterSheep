@@ -79,16 +79,31 @@ def build_index(file, log_lock=Lock()):
             peaks_count = None
             precursor_mz = None
             precursor_charge = None
+            precursor_list_count = None
+            data_array_list_count = None
 
             try:
-                ms_level = int(re.search(b'msLevel="([^"]+)', block).groups()[0])
+                ms_level = int(re.search(b'ms level.+value="([^"]+)', block).groups()[0])
                 if ms_level != 2:
                     continue
-                scan_num = int(re.search(b'num="([^"]+)', block).groups()[0])
-                peaks_count = int(re.search(b'peaksCount="([^"]+)', block).groups()[0])
-                precursor_mz = float(re.search(b'>([^>]+)</precursorMz>', block).groups()[0])
-                precursor_charge = re.search(b'precursorCharge="([^"]+)', block)
-                precursor_charge = int(precursor_charge.groups()[0]) if precursor_charge else 1
+                precursor_list_count = int(re.search(b'precursorList.+count="([^"]+)', block).groups()[0])
+                data_array_list_count = int(re.search(b'binaryDataArrayList.+count="([^"]+)', block).groups()[0])
+                if precursor_list_count != 1 or data_array_list_count != 2:
+                    if ignore_errors:
+                        fail_count += 1
+                        continue
+                    else:
+                        err_msg = ('\nPrecursor list count or binary data array count is not 1.'
+                                   '\nPrecursor list count: {}    Binary data array count: {}'
+                                   .format(precursor_list_count, data_array_list_count))
+                        with log_lock:
+                            logging.error(err_msg)
+                        raise SyntaxError(err_msg)
+                scan_num = int(re.search(b'<spectrum.+scan=([^"]+)', block).groups()[0])
+                peaks_count = int(re.search(b'<spectrum.+defaultArrayLength="([^"]+)', block).groups()[0])
+                precursor_mz = float(re.search(b'selected ion m/z.+value="([^"]+)', block).groups()[0])
+                precursor_charge = re.search(b'charge state.+value="([^"]+)', block).groups()[0]
+                # precursor_charge = int(precursor_charge.groups()[0]) if precursor_charge else 1
             except Exception:
                 if ignore_errors:
                     fail_count += 1
@@ -99,7 +114,7 @@ def build_index(file, log_lock=Lock()):
                               .format(start_pos, scan_num, ms_level, peaks_count, precursor_mz, precursor_charge)
                     with log_lock:
                         logging.error(err_msg)
-                    raise SyntaxError(err_msg)
+                    raise
 
             if peaks_count >= min_num_peaks:
                 if true_precursor_mass:
@@ -151,7 +166,7 @@ def _get_offset_list(fp, log_lock=Lock()):
     fp.seek(index_offset)
     for l in fp.readlines():
         try:
-            temp = re.search(b'>([^>]+)</offset>', l)
+            temp = re.search(b'scan=.+>([^>]+)</offset>', l)
             if temp:
                 offset_list.append(int(temp.groups()[0]))
         except Exception:
@@ -185,7 +200,7 @@ def _get_scan_count(fp, log_lock=Lock()):
     while fp.tell() < end:
         line = fp.readline()
         try:
-            temp = re.search(b'scanCount="([^"]+)', line)
+            temp = re.search(b'spectrumList.+count="([^"]+)', line)
             if temp:
                 scan_count = int(temp.groups()[0])
                 break
@@ -211,11 +226,11 @@ def _get_index_offset(fp, log_lock=Lock()):
     fp.seek(cursor)
     block = fp.read()
     try:
-        index_offset = int(re.search(b'<indexOffset>(.+)</indexOffset>', block).groups()[0])
+        index_offset = int(re.search(b'<indexListOffset>(.+)</indexListOffset>', block).groups()[0])
     except Exception:
         if not ignore_errors:
             err_msg = '\nUnable to extract index offset.'\
-                      '\nKeyword searching returned {}'.format(re.search(b'<indexOffset>(.+)</indexOffset>', block))
+                      '\nKeyword searching returned {}'.format(re.search(b'<indexListOffset>(.+)</indexListOffset>', block))
             with log_lock:
                 logging.error(err_msg)
         raise
@@ -241,9 +256,13 @@ def _get_peaks_raw(file, offset, log_lock=Lock()):
         fp.seek(start_pos)
         block = fp.read(end_pos - start_pos)
         try:
-            start_pos = re.search(b'<peaks', block).span()[0]
-            end_pos = re.search(b'</peaks>', block).span()[1]
+            start_pos = re.search(b'<binaryDataArrayList', block).span()[1]
+            end_pos = re.search(b'</binaryDataArrayList>', block).span()[0]
             block = block[start_pos:end_pos]
+            array_block_start_poses = [x.span()[1] for x in re.finditer(b'<binaryDataArray', block)]
+            array_block_end_poses = [x.span()[0] for x in re.finditer(b'</binaryDataArray', block)]
+            array_blocks = [(min(array_block_start_poses), min(array_block_end_poses)),
+                            (max(array_block_start_poses), max(array_block_end_poses))]
         except Exception:
             if not ignore_errors:
                 err_msg = '\nUnable to find the peak element. It may be a broken file.'
@@ -251,31 +270,59 @@ def _get_peaks_raw(file, offset, log_lock=Lock()):
                     logging.error(err_msg)
             raise
 
-        precision = None
-        compression = None
+        mz = None
+        intensity = None
 
-        try:
-            precision = re.search(b'precision="([^"]+)', block).groups()[0].decode()
-            compression = re.search(b'compressionType="([^"]+)', block)
-            if compression:
-                compression = compression.groups()[0].decode()
-        except Exception:
+        for array_block in array_blocks:
+            precision = None
+            compression = None
+
+            temp_block = block[array_block[0]:array_block[1]]
+            if b'32-bit' in temp_block:
+                precision = '32'
+            elif b'64-bit' in temp_block:
+                precision = '64'
+            if b'no compression' in temp_block:
+                compression = 'none'
+            elif b'zlib compression' in temp_block:
+                compression = 'zlib'
+
+            if precision is None or compression is None:
+                if not ignore_errors:
+                    err_msg = '\nUnable to get the necessary information.'\
+                              '\nPrecision: {}    Compression: {}'.format(precision, compression)
+                    with log_lock:
+                        logging.error(err_msg)
+                raise
+
+            if b'm/z array' in temp_block:
+                mz = (precision, compression, re.search(b'<binary>(.+)</binary>', temp_block).groups()[0])
+            elif b'intensity array' in temp_block:
+                intensity = (precision, compression, re.search(b'<binary>(.+)</binary>', temp_block).groups()[0])
+
+        if mz is None or intensity is None:
             if not ignore_errors:
-                err_msg = '\nUnable to get the necessary information.'\
-                          '\nPrecision: {}'.format(precision)
+                err_msg = '\nUnable to get all data arrays.' \
+                          '\nm/z:'\
+                          '\n{}'\
+                          '\nIntensity:'\
+                          '\n{}'.format(mz, intensity)
                 with log_lock:
                     logging.error(err_msg)
             raise
-
-        peaks_raw = re.search(b'>([^>]+)</peaks>', block).groups()[0]
-
-    return peaks_raw, precision, compression
+    return mz, intensity
 
 
 def get_peaks(file, offset, log_lock=Lock()):
-    peaks_raw, precision, compression = _get_peaks_raw(file, offset, log_lock)
+    mz, intensity = _get_peaks_raw(file, offset, log_lock)
+    mz = _decode(mz[0], mz[1], mz[2], log_lock)
+    intensity = _decode(intensity[0], intensity[1], intensity[2], log_lock)
+    return mz, intensity
+
+
+def _decode(precision, compression, binary, log_lock):
     try:
-        binary = base64.decodebytes(peaks_raw)
+        binary = base64.decodebytes(binary)
         if compression == 'zlib':
             binary = zlib.decompress(binary)
         elif compression == 'none' or compression is None:
@@ -301,17 +348,15 @@ def get_peaks(file, offset, log_lock=Lock()):
                 with log_lock:
                     logging.error(err_msg)
         temp = np.frombuffer(binary, dtype=dtype)
-        temp = temp.byteswap()
-        intensity, mz = np.rot90(temp.reshape((int(temp.size/2), 2)))
     except Exception:
         if not ignore_errors:
             err_msg = '\nUnable to decode the text.'\
                       '\nRaw text:'\
-                      '\n{}'.format(peaks_raw)
+                      '\n{}'.format(binary)
             with log_lock:
                 logging.error(err_msg)
         raise
-    return mz, intensity
+    return temp
 
 
 def _refresh_session():
