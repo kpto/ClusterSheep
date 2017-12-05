@@ -59,7 +59,7 @@ def export_cluster(file, num_of_threads=os.cpu_count()):
     read_lock = mp.Lock()
     merge_lock = mp.Lock()
     exit_signal = mp.Value(ctypes.c_bool, False)
-    finish_count = mp.Value(ctypes.c_uint64, 1)
+    finish_count = mp.Value(ctypes.c_uint64, 0)
 
     session.clusters.connect()
     num_clusters = session.clusters.cursor.execute('SELECT "num_of_clusters" FROM "metadata"').fetchone()[0]
@@ -150,7 +150,7 @@ def _worker(pid, file, num_clusters, finish_count, log_lock, count_lock, read_lo
                 break
 
             with count_lock:
-                cluster_id = finish_count.value
+                cluster_id = finish_count.value + 1
                 if cluster_id > num_clusters: break
                 finish_count.value += 1
             _write_cluster(pid, clusters_cur, cluster_id, file, log_lock, read_lock, merge_lock)
