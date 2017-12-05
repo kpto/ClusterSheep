@@ -253,7 +253,7 @@ class Flags:
         option_name = '--list-gpus'
         Flags._redundant_value_error(option_name, value)
         Flags._conflict_error(('--name', '--fork', '--file-list', '--force', '--use-cpu', '--ignore-errors',
-                               '--config', '-dev-mode', '--preparation-only', '--stay-interactive', '--load-session',
+                               '--config', '-dev-mode', '--checkpoint', '--preparation-only', '--stay-interactive', '--load-session',
                                '--no-saving', '--keep-trash', '--re-process', '--re-cluster', '--rebuild-iden_lut',
                                '--test-gpus', '--print-session'), option_name)
         self.list_gpus = True
@@ -263,7 +263,7 @@ class Flags:
         option_name = '--test-gpus'
         Flags._redundant_value_error(option_name, value)
         Flags._conflict_error(('--name', '--fork', '--file-list', '--force', '--use-cpu', '--ignore-errors',
-                               '--config', '-dev-mode', '--preparation-only', '--stay-interactive', '--load-session',
+                               '--config', '-dev-mode', '--checkpoint', '--preparation-only', '--stay-interactive', '--load-session',
                                '--no-saving', '--keep-trash', '--re-process', '--re-cluster', '--rebuild-iden_lut',
                                '--list-gpus', '--print-session'), option_name)
         self.test_gpus = True
@@ -274,7 +274,7 @@ class Flags:
         Flags._redundant_value_error(option_name, value)
         Flags._must_exist_error(('--load-session',), option_name)
         Flags._conflict_error(('--name', '--fork', '--file-list', '--force', '--use-cpu', '--ignore-errors',
-                               '--config', '-dev-mode', '--preparation-only', '--stay-interactive', '--no-saving',
+                               '--config', '-dev-mode', '--checkpoint', '--preparation-only', '--stay-interactive', '--no-saving',
                                '--keep-trash', '--re-process', '--re-cluster', '--rebuild-iden_lut', '--list-gpus',
                                '--test-gpus'), option_name)
         self.print_session = True

@@ -41,6 +41,47 @@ except ImportError:
 
 
 # ====BEGIN OF CODE====
+def get_graph(cluster_id=None):
+    import pickle
+    query = session.clusters.cursor.execute('SELECT * FROM "clusters" WHERE "cluster_id"=?',
+                                            (cluster_id,)).fetchone()
+    return query[:-1] + (pickle.loads(query[-1]),)
+
+
+def clustering():
+    precursor_tolerance = session.config.cg_precursor_tolerance.value
+    dot_product_threshold = session.config.cg_dot_product_threshold.value
+    index_length = len(session.internal_index)
+    dps = []
+    edg = []
+    for i, ei in enumerate(session.internal_index):
+        print(i, end='\r')
+        for j, ej in enumerate(session.internal_index[i+1:index_length]):
+            if abs(ei.precursor_mass - ej.precursor_mass) <= precursor_tolerance:
+                dp = ei.get_spectrum().verificative_ranked_dp(ej.get_spectrum())
+                if dp > dot_product_threshold:
+                    edg.append((i, j+i+1))
+                    dps.append(dp)
+    print()
+    import pprint
+    pprint.pprint(edg)
+    pprint.pprint(dps)
+    import graph_tool.all as gt
+    import numpy as np
+    g = gt.Graph(directed=False)
+    g.add_edge_list(edg)
+    g.vp['iid'] = g.new_vp('int')
+    for i in range(g.num_vertices()):
+        g.vp['iid'][i] = i
+    g.ep['dps'] = g.new_ep('float')
+    g.ep['dps'].a = np.array(dps, dtype=np.float32)
+    comp, hist = gt.label_components(g)
+    graphs = []
+    for i in range(len(hist)):
+        graphs.append(gt.Graph(gt.GraphView(g, vfilt=(comp.a == i)), directed=False, prune=True))
+    return graphs
+
+
 def mount_edge_list(path):
     import numpy as np
     length = int(path.joinpath('dps').stat().st_size / 4)
