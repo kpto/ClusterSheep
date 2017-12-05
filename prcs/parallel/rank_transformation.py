@@ -303,8 +303,8 @@ def _rank_transform(precursor_mass, precursor_charge, mz, intensity, log_lock=Lo
     if bins_per_th != 1: mz *= bins_per_th
     new_mz = np.empty(len(mz), dtype=np.int32)
     new_intensity = np.empty(len(intensity), dtype=np.float32)
-    _binning(mz, intensity, new_mz, new_intensity)
-    mz, intensity = new_mz, new_intensity
+    new_length = _binning(mz, intensity, new_mz, new_intensity)
+    mz, intensity = new_mz[:new_length], new_intensity[:new_length]
 
     temp = min(len(mz), num_of_peaks)
     new_intensity = np.arange(1, temp + 1)[::-1]

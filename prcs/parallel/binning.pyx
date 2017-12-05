@@ -42,6 +42,7 @@ def _binning(np.float32_t[:] mz, np.float32_t[:] intensity,
     cdef RT_MZ_DATA_TYPE previous = -1
     cdef RT_MZ_DATA_TYPE mz_int
     cdef np.uint32_t cursor = -1
+    cdef np.uint32_t new_length
     cdef np.uint32_t length = mz.shape[0]
     cdef np.uint32_t i
 
@@ -53,8 +54,8 @@ def _binning(np.float32_t[:] mz, np.float32_t[:] intensity,
             cursor += 1
             new_mz[cursor] = previous = mz_int
             new_intensity[cursor] = intensity[i]
-    cursor += 1
-    return
+    new_length = cursor + 1
+    return new_length
 # ====END OF CODE====
 
 

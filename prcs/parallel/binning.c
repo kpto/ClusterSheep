@@ -2121,6 +2121,7 @@ static const char __pyx_k_pyx_state[] = "__pyx_state";
 static const char __pyx_k_reduce_ex[] = "__reduce_ex__";
 static const char __pyx_k_IndexError[] = "IndexError";
 static const char __pyx_k_ValueError[] = "ValueError";
+static const char __pyx_k_new_length[] = "new_length";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static const char __pyx_k_ImportError[] = "ImportError";
@@ -2238,6 +2239,7 @@ static PyObject *__pyx_kp_u_ndarray_is_not_Fortran_contiguou;
 static PyObject *__pyx_n_s_ndim;
 static PyObject *__pyx_n_s_new;
 static PyObject *__pyx_n_s_new_intensity;
+static PyObject *__pyx_n_s_new_length;
 static PyObject *__pyx_n_s_new_mz;
 static PyObject *__pyx_kp_s_no_default___reduce___due_to_non;
 static PyObject *__pyx_n_s_np;
@@ -2467,6 +2469,7 @@ static PyObject *__pyx_pf_4prcs_8parallel_7binning__binning(CYTHON_UNUSED PyObje
   __pyx_t_4prcs_8parallel_7binning_RT_MZ_DATA_TYPE __pyx_v_previous;
   __pyx_t_4prcs_8parallel_7binning_RT_MZ_DATA_TYPE __pyx_v_mz_int;
   __pyx_t_5numpy_uint32_t __pyx_v_cursor;
+  __pyx_t_5numpy_uint32_t __pyx_v_new_length;
   __pyx_t_5numpy_uint32_t __pyx_v_length;
   __pyx_t_5numpy_uint32_t __pyx_v_i;
   PyObject *__pyx_r = NULL;
@@ -2481,6 +2484,7 @@ static PyObject *__pyx_pf_4prcs_8parallel_7binning__binning(CYTHON_UNUSED PyObje
   size_t __pyx_t_8;
   size_t __pyx_t_9;
   size_t __pyx_t_10;
+  PyObject *__pyx_t_11 = NULL;
   __Pyx_RefNannySetupContext("_binning", 0);
 
   /* "prcs/parallel/binning.pyx":42
@@ -2496,21 +2500,21 @@ static PyObject *__pyx_pf_4prcs_8parallel_7binning__binning(CYTHON_UNUSED PyObje
  *     cdef RT_MZ_DATA_TYPE previous = -1
  *     cdef RT_MZ_DATA_TYPE mz_int
  *     cdef np.uint32_t cursor = -1             # <<<<<<<<<<<<<<
+ *     cdef np.uint32_t new_length
  *     cdef np.uint32_t length = mz.shape[0]
- *     cdef np.uint32_t i
  */
   __pyx_v_cursor = -1;
 
-  /* "prcs/parallel/binning.pyx":45
- *     cdef RT_MZ_DATA_TYPE mz_int
+  /* "prcs/parallel/binning.pyx":46
  *     cdef np.uint32_t cursor = -1
+ *     cdef np.uint32_t new_length
  *     cdef np.uint32_t length = mz.shape[0]             # <<<<<<<<<<<<<<
  *     cdef np.uint32_t i
  * 
  */
   __pyx_v_length = (__pyx_v_mz.shape[0]);
 
-  /* "prcs/parallel/binning.pyx":48
+  /* "prcs/parallel/binning.pyx":49
  *     cdef np.uint32_t i
  * 
  *     for i in range(length):             # <<<<<<<<<<<<<<
@@ -2521,7 +2525,7 @@ static PyObject *__pyx_pf_4prcs_8parallel_7binning__binning(CYTHON_UNUSED PyObje
   for (__pyx_t_2 = 0; __pyx_t_2 < __pyx_t_1; __pyx_t_2+=1) {
     __pyx_v_i = __pyx_t_2;
 
-    /* "prcs/parallel/binning.pyx":49
+    /* "prcs/parallel/binning.pyx":50
  * 
  *     for i in range(length):
  *         mz_int = int(mz[i])             # <<<<<<<<<<<<<<
@@ -2533,11 +2537,11 @@ static PyObject *__pyx_pf_4prcs_8parallel_7binning__binning(CYTHON_UNUSED PyObje
     if (unlikely(__pyx_t_3 >= (size_t)__pyx_v_mz.shape[0])) __pyx_t_4 = 0;
     if (unlikely(__pyx_t_4 != -1)) {
       __Pyx_RaiseBufferIndexError(__pyx_t_4);
-      __PYX_ERR(0, 49, __pyx_L1_error)
+      __PYX_ERR(0, 50, __pyx_L1_error)
     }
     __pyx_v_mz_int = ((__pyx_t_4prcs_8parallel_7binning_RT_MZ_DATA_TYPE)(*((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_mz.data + __pyx_t_3 * __pyx_v_mz.strides[0]) ))));
 
-    /* "prcs/parallel/binning.pyx":50
+    /* "prcs/parallel/binning.pyx":51
  *     for i in range(length):
  *         mz_int = int(mz[i])
  *         if mz_int == previous:             # <<<<<<<<<<<<<<
@@ -2547,7 +2551,7 @@ static PyObject *__pyx_pf_4prcs_8parallel_7binning__binning(CYTHON_UNUSED PyObje
     __pyx_t_5 = ((__pyx_v_mz_int == __pyx_v_previous) != 0);
     if (__pyx_t_5) {
 
-      /* "prcs/parallel/binning.pyx":51
+      /* "prcs/parallel/binning.pyx":52
  *         mz_int = int(mz[i])
  *         if mz_int == previous:
  *             new_intensity[cursor] += intensity[i]             # <<<<<<<<<<<<<<
@@ -2559,18 +2563,18 @@ static PyObject *__pyx_pf_4prcs_8parallel_7binning__binning(CYTHON_UNUSED PyObje
       if (unlikely(__pyx_t_6 >= (size_t)__pyx_v_intensity.shape[0])) __pyx_t_4 = 0;
       if (unlikely(__pyx_t_4 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_4);
-        __PYX_ERR(0, 51, __pyx_L1_error)
+        __PYX_ERR(0, 52, __pyx_L1_error)
       }
       __pyx_t_7 = __pyx_v_cursor;
       __pyx_t_4 = -1;
       if (unlikely(__pyx_t_7 >= (size_t)__pyx_v_new_intensity.shape[0])) __pyx_t_4 = 0;
       if (unlikely(__pyx_t_4 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_4);
-        __PYX_ERR(0, 51, __pyx_L1_error)
+        __PYX_ERR(0, 52, __pyx_L1_error)
       }
       *((__pyx_t_4prcs_8parallel_7binning_RT_INTENSITY_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_new_intensity.data + __pyx_t_7 * __pyx_v_new_intensity.strides[0]) )) += (*((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_intensity.data + __pyx_t_6 * __pyx_v_intensity.strides[0]) )));
 
-      /* "prcs/parallel/binning.pyx":50
+      /* "prcs/parallel/binning.pyx":51
  *     for i in range(length):
  *         mz_int = int(mz[i])
  *         if mz_int == previous:             # <<<<<<<<<<<<<<
@@ -2580,7 +2584,7 @@ static PyObject *__pyx_pf_4prcs_8parallel_7binning__binning(CYTHON_UNUSED PyObje
       goto __pyx_L5;
     }
 
-    /* "prcs/parallel/binning.pyx":53
+    /* "prcs/parallel/binning.pyx":54
  *             new_intensity[cursor] += intensity[i]
  *         else:
  *             cursor += 1             # <<<<<<<<<<<<<<
@@ -2590,67 +2594,70 @@ static PyObject *__pyx_pf_4prcs_8parallel_7binning__binning(CYTHON_UNUSED PyObje
     /*else*/ {
       __pyx_v_cursor = (__pyx_v_cursor + 1);
 
-      /* "prcs/parallel/binning.pyx":54
+      /* "prcs/parallel/binning.pyx":55
  *         else:
  *             cursor += 1
  *             new_mz[cursor] = previous = mz_int             # <<<<<<<<<<<<<<
  *             new_intensity[cursor] = intensity[i]
- *     cursor += 1
+ *     new_length = cursor + 1
  */
       __pyx_t_8 = __pyx_v_cursor;
       __pyx_t_4 = -1;
       if (unlikely(__pyx_t_8 >= (size_t)__pyx_v_new_mz.shape[0])) __pyx_t_4 = 0;
       if (unlikely(__pyx_t_4 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_4);
-        __PYX_ERR(0, 54, __pyx_L1_error)
+        __PYX_ERR(0, 55, __pyx_L1_error)
       }
       *((__pyx_t_4prcs_8parallel_7binning_RT_MZ_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_new_mz.data + __pyx_t_8 * __pyx_v_new_mz.strides[0]) )) = __pyx_v_mz_int;
       __pyx_v_previous = __pyx_v_mz_int;
 
-      /* "prcs/parallel/binning.pyx":55
+      /* "prcs/parallel/binning.pyx":56
  *             cursor += 1
  *             new_mz[cursor] = previous = mz_int
  *             new_intensity[cursor] = intensity[i]             # <<<<<<<<<<<<<<
- *     cursor += 1
- *     return
+ *     new_length = cursor + 1
+ *     return new_length
  */
       __pyx_t_9 = __pyx_v_i;
       __pyx_t_4 = -1;
       if (unlikely(__pyx_t_9 >= (size_t)__pyx_v_intensity.shape[0])) __pyx_t_4 = 0;
       if (unlikely(__pyx_t_4 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_4);
-        __PYX_ERR(0, 55, __pyx_L1_error)
+        __PYX_ERR(0, 56, __pyx_L1_error)
       }
       __pyx_t_10 = __pyx_v_cursor;
       __pyx_t_4 = -1;
       if (unlikely(__pyx_t_10 >= (size_t)__pyx_v_new_intensity.shape[0])) __pyx_t_4 = 0;
       if (unlikely(__pyx_t_4 != -1)) {
         __Pyx_RaiseBufferIndexError(__pyx_t_4);
-        __PYX_ERR(0, 55, __pyx_L1_error)
+        __PYX_ERR(0, 56, __pyx_L1_error)
       }
       *((__pyx_t_4prcs_8parallel_7binning_RT_INTENSITY_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_new_intensity.data + __pyx_t_10 * __pyx_v_new_intensity.strides[0]) )) = (*((__pyx_t_5numpy_float32_t *) ( /* dim=0 */ (__pyx_v_intensity.data + __pyx_t_9 * __pyx_v_intensity.strides[0]) )));
     }
     __pyx_L5:;
   }
 
-  /* "prcs/parallel/binning.pyx":56
+  /* "prcs/parallel/binning.pyx":57
  *             new_mz[cursor] = previous = mz_int
  *             new_intensity[cursor] = intensity[i]
- *     cursor += 1             # <<<<<<<<<<<<<<
- *     return
+ *     new_length = cursor + 1             # <<<<<<<<<<<<<<
+ *     return new_length
  * # ====END OF CODE====
  */
-  __pyx_v_cursor = (__pyx_v_cursor + 1);
+  __pyx_v_new_length = (__pyx_v_cursor + 1);
 
-  /* "prcs/parallel/binning.pyx":57
+  /* "prcs/parallel/binning.pyx":58
  *             new_intensity[cursor] = intensity[i]
- *     cursor += 1
- *     return             # <<<<<<<<<<<<<<
+ *     new_length = cursor + 1
+ *     return new_length             # <<<<<<<<<<<<<<
  * # ====END OF CODE====
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_r = Py_None; __Pyx_INCREF(Py_None);
+  __pyx_t_11 = __Pyx_PyInt_From_npy_uint32(__pyx_v_new_length); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 58, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_11);
+  __pyx_r = __pyx_t_11;
+  __pyx_t_11 = 0;
   goto __pyx_L0;
 
   /* "prcs/parallel/binning.pyx":39
@@ -2663,6 +2670,7 @@ static PyObject *__pyx_pf_4prcs_8parallel_7binning__binning(CYTHON_UNUSED PyObje
 
   /* function exit code */
   __pyx_L1_error:;
+  __Pyx_XDECREF(__pyx_t_11);
   __Pyx_AddTraceback("prcs.parallel.binning._binning", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
@@ -18838,6 +18846,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_ndim, __pyx_k_ndim, sizeof(__pyx_k_ndim), 0, 0, 1, 1},
   {&__pyx_n_s_new, __pyx_k_new, sizeof(__pyx_k_new), 0, 0, 1, 1},
   {&__pyx_n_s_new_intensity, __pyx_k_new_intensity, sizeof(__pyx_k_new_intensity), 0, 0, 1, 1},
+  {&__pyx_n_s_new_length, __pyx_k_new_length, sizeof(__pyx_k_new_length), 0, 0, 1, 1},
   {&__pyx_n_s_new_mz, __pyx_k_new_mz, sizeof(__pyx_k_new_mz), 0, 0, 1, 1},
   {&__pyx_kp_s_no_default___reduce___due_to_non, __pyx_k_no_default___reduce___due_to_non, sizeof(__pyx_k_no_default___reduce___due_to_non), 0, 0, 1, 0},
   {&__pyx_n_s_np, __pyx_k_np, sizeof(__pyx_k_np), 0, 0, 1, 1},
@@ -18883,7 +18892,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 48, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 49, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(1, 235, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(1, 823, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 1013, __pyx_L1_error)
@@ -19209,10 +19218,10 @@ static int __Pyx_InitCachedConstants(void) {
  *              RT_MZ_DATA_TYPE[:] new_mz, RT_INTENSITY_DATA_TYPE[:] new_intensity):
  * 
  */
-  __pyx_tuple__29 = PyTuple_Pack(9, __pyx_n_s_mz, __pyx_n_s_intensity, __pyx_n_s_new_mz, __pyx_n_s_new_intensity, __pyx_n_s_previous, __pyx_n_s_mz_int, __pyx_n_s_cursor, __pyx_n_s_length, __pyx_n_s_i); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_tuple__29 = PyTuple_Pack(10, __pyx_n_s_mz, __pyx_n_s_intensity, __pyx_n_s_new_mz, __pyx_n_s_new_intensity, __pyx_n_s_previous, __pyx_n_s_mz_int, __pyx_n_s_cursor, __pyx_n_s_new_length, __pyx_n_s_length, __pyx_n_s_i); if (unlikely(!__pyx_tuple__29)) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__29);
   __Pyx_GIVEREF(__pyx_tuple__29);
-  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(4, 0, 9, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_prcs_parallel_binning_pyx, __pyx_n_s_binning, 39, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 39, __pyx_L1_error)
+  __pyx_codeobj__30 = (PyObject*)__Pyx_PyCode_New(4, 0, 10, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__29, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_prcs_parallel_binning_pyx, __pyx_n_s_binning, 39, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__30)) __PYX_ERR(0, 39, __pyx_L1_error)
 
   /* "View.MemoryView":284
  *         return self.name
@@ -19518,16 +19527,16 @@ static int __pyx_pymod_exec_binning(PyObject *__pyx_pyinit_module)
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_binning, __pyx_t_1) < 0) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "prcs/parallel/binning.pyx":62
+  /* "prcs/parallel/binning.pyx":63
  * 
  * # ====CODE FOR MODULE TEST====
  * if __name__ == '__main__':             # <<<<<<<<<<<<<<
  *     pass
  * # ====CODE FOR MODULE TEST====
  */
-  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_name_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_GetModuleGlobalName(__pyx_n_s_name_2); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_2 = (__Pyx_PyString_Equals(__pyx_t_1, __pyx_n_s_main, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 62, __pyx_L1_error)
+  __pyx_t_2 = (__Pyx_PyString_Equals(__pyx_t_1, __pyx_n_s_main, Py_EQ)); if (unlikely(__pyx_t_2 < 0)) __PYX_ERR(0, 63, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   if (__pyx_t_2) {
   }
