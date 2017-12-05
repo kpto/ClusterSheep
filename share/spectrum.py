@@ -72,7 +72,7 @@ class Spectrum(Entry):
 
     def sort_by_mz(self, copy=True):
         target = Spectrum(self) if copy else self
-        idx = np.sort(target.mz)
+        idx = np.argsort(target.mz)
         target.mz = target.mz[idx]
         target.intensity = target.intensity[idx]
         return target
@@ -98,7 +98,7 @@ class Spectrum(Entry):
         target.mz, target.intensity = target.mz[idx], target.intensity[idx]
         return target
 
-    def rank_transform(self, num_of_peaks=None, bins_per_th=None, copy=True):
+    def rank_transform(self, num_of_peaks=None, bins_per_th=None, copy=True, normalize=True):
         num_of_peaks = num_of_peaks if num_of_peaks else session.config.rt_num_of_peaks.value
         bins_per_th = bins_per_th if bins_per_th else session.config.rt_bins_per_th.value
         target = Spectrum(self) if copy else self
@@ -110,19 +110,20 @@ class Spectrum(Entry):
         if bins_per_th != 1: mz *= bins_per_th
         mz, intensity = target._binning(mz, intensity)
 
-        temp = max(0, num_of_peaks - len(mz))
-        new_intensity = np.arange(num_of_peaks, temp, -1)
+        temp = min(len(mz), num_of_peaks)
+        new_intensity = np.arange(1, temp + 1)[::-1]
         idx = np.argsort(intensity)[:-(num_of_peaks + 1):-1]
         intensity[idx] = new_intensity
         idx.sort()
 
         mz = mz[idx]
         intensity = intensity[idx]
-        intensity /= np.linalg.norm(intensity)
+        if normalize:
+            intensity /= np.linalg.norm(intensity)
 
-        if temp != 0:
-            mz = np.append(np.full(temp, -1, dtype=np.int32), mz)
-            intensity = np.append(np.full(temp, 0, dtype=np.float32), intensity)
+        if temp < num_of_peaks:
+            mz = np.append(np.full(num_of_peaks - temp, -1, dtype=np.int32), mz)
+            intensity = np.append(np.full(num_of_peaks - temp, 0, dtype=np.float32), intensity)
             
         target.mz, target.intensity = mz, intensity
         target.ranked = True

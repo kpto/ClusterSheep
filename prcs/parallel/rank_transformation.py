@@ -280,7 +280,14 @@ def _rank_transform(precursor_mass, precursor_charge, mz, intensity, log_lock=Lo
         if not ignore_errors:
             with log_lock:
                 logging.error(err_msg)
-        raise ValueError(err_msg)
+            raise ValueError(err_msg)
+        else:
+            idx = np.argsort(mz)
+            mz = mz[idx]
+            intensity = intensity[idx]
+            wrn_msg = 'Spectrum is not sorted by m/z. This may be a broken spectrum.'
+            with log_lock:
+                logging.warning(wrn_msg)
 
     if mz_range != (0, 0):
         idx = np.logical_and(mz >= mz_range[0], mz <= mz_range[1])
@@ -299,8 +306,8 @@ def _rank_transform(precursor_mass, precursor_charge, mz, intensity, log_lock=Lo
     _binning(mz, intensity, new_mz, new_intensity)
     mz, intensity = new_mz, new_intensity
 
-    temp = max(0, num_of_peaks - len(mz))
-    new_intensity = np.arange(num_of_peaks, temp, -1)
+    temp = min(len(mz), num_of_peaks)
+    new_intensity = np.arange(1, temp + 1)[::-1]
     idx = np.argsort(intensity)[:-(num_of_peaks+1):-1]
     intensity[idx] = new_intensity
     idx.sort()
@@ -309,9 +316,9 @@ def _rank_transform(precursor_mass, precursor_charge, mz, intensity, log_lock=Lo
     intensity = intensity[idx]
     intensity /= np.linalg.norm(intensity)
 
-    if temp != 0:
-        mz = np.append(np.full(temp, -1, dtype=np.int32), mz)
-        intensity = np.append(np.full(temp, 0, dtype=np.float32), intensity)
+    if temp < num_of_peaks:
+        mz = np.append(np.full(num_of_peaks - temp, -1, dtype=np.int32), mz)
+        intensity = np.append(np.full(num_of_peaks - temp, 0, dtype=np.float32), intensity)
     return mz, intensity
 
 
