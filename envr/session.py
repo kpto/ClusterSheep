@@ -44,7 +44,7 @@ class Session:
 
     def __init__(self):
         time = datetime.now()
-        self.name = NAME.lower() + '_' + time.isoformat()
+        self.name = time.isoformat() + '_' + NAME.lower()
         self.creation_time = time
         self.magic_label = uuid4()
         self.flags = None
