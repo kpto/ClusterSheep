@@ -195,19 +195,29 @@ def _write_cluster(pid, clusters_cur, cluster_id, file, log_lock, read_lock, mer
         with merge_lock:
             with file.open('a', encoding='utf-8') as fp:
                 fp.write(description)
+                lines = []
                 for i in range(graph.num_vertices()):
-                    line = str(files[i]) + '\t' + str(native_ids[i]) + '\t' + idens[iden_ids[i]] + '\t' + str(prb[i]) + '\n'
-                    fp.write(line)
+                    lines.append((str(files[i]), str(native_ids[i]), idens[iden_ids[i]], str(prb[i])))
+                lines = sorted(lines, key=lambda x: x[1])
+                lines = sorted(lines, key=lambda x: x[0])
+                fp.writelines(map(_join_elements, lines))
                 fp.write('\n')
     else:
         with merge_lock:
             with file.open('a', encoding='utf-8') as fp:
                 fp.write(description)
+                lines = []
                 for i in range(graph.num_vertices()):
-                    line = str(files[i]) + '\t' + str(native_ids[i]) + '\n'
-                    fp.write(line)
+                    lines.append((str(files[i]), str(native_ids[i])))
+                lines = sorted(lines, key=lambda x: x[1])
+                lines = sorted(lines, key=lambda x: x[0])
+                fp.writelines(map(_join_elements, lines))
                 fp.write('\n')
     return
+
+
+def _join_elements(line):
+    return '\t'.join(line) + '\n'
 
 
 def _refresh_session():
