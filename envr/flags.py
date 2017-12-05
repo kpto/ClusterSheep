@@ -45,6 +45,7 @@ class Flags:
         self.ignore_errors = False
         self.config = None
         self.dev_mode = False
+        self.checkpoint = False
         self.preparation_only = False
         self.stay_interactive = False
         self.load_session = None
@@ -71,6 +72,7 @@ class Flags:
                '--ignore-errors:' + str(self.ignore_errors) + '\n' + \
                '--config:' + str(self.config) + '\n' + \
                '--dev-mode:' + str(self.dev_mode) + '\n' + \
+               '--checkpoint:' + str(self.checkpoint) + '\n' + \
                '--preparation-only:' + str(self.preparation_only) + '\n' + \
                '--stay-interactive:' + str(self.stay_interactive) + '\n' + \
                '--load-session:' + str(self.load_session) + '\n' + \
@@ -188,6 +190,11 @@ class Flags:
         self.dev_mode = True
         return
 
+    def func_checkpoint(self, value):
+        Flags._redundant_value_error('--checkpoint', value)
+        self.checkpoint = True
+        return
+
     def func_preparation_only(self, value):
         Flags._redundant_value_error('--preparation-only', value)
         self.preparation_only = True
@@ -283,6 +290,7 @@ class Flags:
             '--ignore-errors': self.func_ignore_errors,
             '--config': self.func_config,
             '--dev-mode': self.func_dev_mode,
+            '--checkpoint': self.func_checkpoint,
             '--preparation-only': self.func_preparation_only,
             '--stay-interactive': self.func_stay_interactive,
             '--load-session': self.func_load_session,

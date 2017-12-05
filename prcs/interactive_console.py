@@ -43,12 +43,27 @@ except ImportError:
 
 
 # ====BEGIN OF CLASS DEFINITION====
+class Checkpoint:
+
+    def __init__(self, enabled, locals_):
+        self.enabled = enabled
+        self.locals = locals_
+        return
+
+    def __call__(self, next_process=None):
+        if self.enabled:
+            if next_process:
+                print('Next process is "{}".'.format(next_process))
+            print('Press Ctrl-D to proceed or input "exit()" to hard terminate the program.')
+            interactive_console(self.locals, banner='', pre_run=[], true_exit=True)
+        return
 # ====END OF CLASS DEFINITION====
 
 
 # ====BEGIN OF CODE====
-def interactive_console(globals_):
-    banner = 'You are now in Python interactive console, presses "Ctrl-D" or executes "exit()" to leave.'
+def interactive_console(globals_, banner=None, pre_run=None, true_exit=False):
+    if banner is None:
+        banner = 'You are now in Python interactive console, presses "Ctrl-D" or executes "exit()" to leave.'
 
     readline.parse_and_bind("tab: complete")
     readline.parse_and_bind('set show-all-if-ambiguous on')
@@ -64,21 +79,24 @@ def interactive_console(globals_):
     sys.ps2 = 'python ... '
     console = code.InteractiveConsole(locals=globals_)
 
-    pre_run = [
-        'import misc',
-        'misc.global_vars = globals()',
-        'from misc import ipython',
-        'import numpy as np',
-        'from importlib import reload',
-        'from prcs.cluster_viewing import cluster_viewer',
-        'from prcs.cluster_viewing import get_graph',
-        'iid = session.internal_index',
-        'rks = session.ranked_spectra',
-        'clu = session.clusters',
-        'ide = session.iden_lut'
-    ]
+    if pre_run is None:
+        pre_run = [
+            'import misc',
+            'import sys',
+            'misc.global_vars = globals()',
+            'from misc import ipython',
+            'import numpy as np',
+            'from importlib import reload',
+            'from prcs.cluster_viewing import cluster_viewer',
+            'from prcs.cluster_viewing import get_graph',
+            'iid = session.internal_index',
+            'rks = session.ranked_spectra',
+            'clu = session.clusters',
+            'ide = session.iden_lut'
+        ]
+
     for line in pre_run: console.push(line)
-    console.interact(banner=banner)
+    console.interact(banner=banner, true_exit=true_exit)
     readline.write_history_file(str(history_file))
     with history_file.open(encoding='utf-8') as fp:
         session.console_hist = fp.read()

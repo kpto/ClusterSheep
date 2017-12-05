@@ -62,6 +62,10 @@ class InteractiveInterpreter:
 
         """
         try:
+            # exit() closes the stdin, causing input error when program backs to cluster viewer.
+            # sys.exit() is used to prevent closing.
+            if source.strip() == 'exit()':
+                source = 'sys.exit()'
             code = self.compile(source, filename, symbol)
         except (OverflowError, SyntaxError, ValueError):
             # Case 1
@@ -189,7 +193,7 @@ class InteractiveConsole(InteractiveInterpreter):
         """Reset the input buffer."""
         self.buffer = []
 
-    def interact(self, banner=None):
+    def interact(self, banner=None, true_exit=False):
         """Closely emulate the interactive Python console.
 
         The optional banner argument specifies the banner to print
@@ -230,7 +234,10 @@ class InteractiveConsole(InteractiveInterpreter):
                 else:
                     more = self.push(line)
             except SystemExit:
-                break
+                if true_exit:
+                    exit()
+                else:
+                    break
             except KeyboardInterrupt:
                 self.write("\nKeyboardInterrupt\n")
                 self.resetbuffer()
