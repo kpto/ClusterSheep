@@ -2643,26 +2643,25 @@ static PyObject *__pyx_pf_4prcs_8parallel_10cpu_kernel__cpu_kernel(CYTHON_UNUSED
   size_t __pyx_t_8;
   Py_ssize_t __pyx_t_9;
   size_t __pyx_t_10;
-  PyObject *__pyx_t_11 = NULL;
-  PyObject *__pyx_t_12 = NULL;
-  int __pyx_t_13;
+  int __pyx_t_11;
+  __Pyx_memviewslice __pyx_t_12 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  Py_ssize_t __pyx_t_13;
   __Pyx_memviewslice __pyx_t_14 = { 0, 0, { 0 }, { 0 }, { 0 } };
   Py_ssize_t __pyx_t_15;
-  __Pyx_memviewslice __pyx_t_16 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  Py_ssize_t __pyx_t_17;
-  int __pyx_t_18;
+  int __pyx_t_16;
+  size_t __pyx_t_17;
+  size_t __pyx_t_18;
   size_t __pyx_t_19;
   size_t __pyx_t_20;
   size_t __pyx_t_21;
   size_t __pyx_t_22;
-  size_t __pyx_t_23;
-  size_t __pyx_t_24;
-  Py_ssize_t __pyx_t_25;
-  Py_ssize_t __pyx_t_26;
-  size_t __pyx_t_27;
-  __Pyx_memviewslice __pyx_t_28 = { 0, 0, { 0 }, { 0 }, { 0 } };
-  Py_ssize_t __pyx_t_29;
-  Py_ssize_t __pyx_t_30;
+  Py_ssize_t __pyx_t_23;
+  Py_ssize_t __pyx_t_24;
+  size_t __pyx_t_25;
+  __Pyx_memviewslice __pyx_t_26 = { 0, 0, { 0 }, { 0 }, { 0 } };
+  Py_ssize_t __pyx_t_27;
+  Py_ssize_t __pyx_t_28;
+  PyObject *__pyx_t_29 = NULL;
   __Pyx_RefNannySetupContext("_cpu_kernel", 0);
 
   /* "prcs/parallel/cpu_kernel.pyx":55
@@ -2679,7 +2678,7 @@ static PyObject *__pyx_pf_4prcs_8parallel_10cpu_kernel__cpu_kernel(CYTHON_UNUSED
  * 
  *     for location_y in range(block_dimensions[0]):             # <<<<<<<<<<<<<<
  *         for location_x in range(block_dimensions[1]):
- *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x] <= precursor_tolerance):
+ *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x]) <= precursor_tolerance:
  */
   __pyx_t_1 = 0;
   __pyx_t_2 = -1;
@@ -2699,7 +2698,7 @@ static PyObject *__pyx_pf_4prcs_8parallel_10cpu_kernel__cpu_kernel(CYTHON_UNUSED
  * 
  *     for location_y in range(block_dimensions[0]):
  *         for location_x in range(block_dimensions[1]):             # <<<<<<<<<<<<<<
- *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x] <= precursor_tolerance):
+ *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x]) <= precursor_tolerance:
  *                 temp_mz_y = mz[location_y]
  */
     __pyx_t_5 = 1;
@@ -2719,7 +2718,7 @@ static PyObject *__pyx_pf_4prcs_8parallel_10cpu_kernel__cpu_kernel(CYTHON_UNUSED
       /* "prcs/parallel/cpu_kernel.pyx":65
  *     for location_y in range(block_dimensions[0]):
  *         for location_x in range(block_dimensions[1]):
- *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x] <= precursor_tolerance):             # <<<<<<<<<<<<<<
+ *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x]) <= precursor_tolerance:             # <<<<<<<<<<<<<<
  *                 temp_mz_y = mz[location_y]
  *                 temp_mz_x = mz[block_dimensions[0] + location_x]
  */
@@ -2747,25 +2746,19 @@ static PyObject *__pyx_pf_4prcs_8parallel_10cpu_kernel__cpu_kernel(CYTHON_UNUSED
         __Pyx_RaiseBufferIndexError(__pyx_t_2);
         __PYX_ERR(0, 65, __pyx_L1_error)
       }
-      __pyx_t_11 = __Pyx_PyBool_FromLong((((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_PRECURSOR_MASS_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_precursor_mass.data + __pyx_t_8 * __pyx_v_precursor_mass.strides[0]) ))) - (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_PRECURSOR_MASS_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_precursor_mass.data + __pyx_t_10 * __pyx_v_precursor_mass.strides[0]) )))) <= __pyx_v_precursor_tolerance)); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 65, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_11);
-      __pyx_t_12 = PyNumber_Absolute(__pyx_t_11); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 65, __pyx_L1_error)
-      __Pyx_GOTREF(__pyx_t_12);
-      __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-      __pyx_t_13 = __Pyx_PyObject_IsTrue(__pyx_t_12); if (unlikely(__pyx_t_13 < 0)) __PYX_ERR(0, 65, __pyx_L1_error)
-      __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-      if (__pyx_t_13) {
+      __pyx_t_11 = ((fabsf(((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_PRECURSOR_MASS_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_precursor_mass.data + __pyx_t_8 * __pyx_v_precursor_mass.strides[0]) ))) - (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_PRECURSOR_MASS_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_precursor_mass.data + __pyx_t_10 * __pyx_v_precursor_mass.strides[0]) ))))) <= __pyx_v_precursor_tolerance) != 0);
+      if (__pyx_t_11) {
 
         /* "prcs/parallel/cpu_kernel.pyx":66
  *         for location_x in range(block_dimensions[1]):
- *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x] <= precursor_tolerance):
+ *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x]) <= precursor_tolerance:
  *                 temp_mz_y = mz[location_y]             # <<<<<<<<<<<<<<
  *                 temp_mz_x = mz[block_dimensions[0] + location_x]
  *                 temp_intensity_y = intensity[location_y]
  */
-        __pyx_t_14.data = __pyx_v_mz.data;
-        __pyx_t_14.memview = __pyx_v_mz.memview;
-        __PYX_INC_MEMVIEW(&__pyx_t_14, 0);
+        __pyx_t_12.data = __pyx_v_mz.data;
+        __pyx_t_12.memview = __pyx_v_mz.memview;
+        __PYX_INC_MEMVIEW(&__pyx_t_12, 0);
         {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_location_y;
     Py_ssize_t __pyx_tmp_shape = __pyx_v_mz.shape[0];
@@ -2776,40 +2769,40 @@ static PyObject *__pyx_pf_4prcs_8parallel_10cpu_kernel__cpu_kernel(CYTHON_UNUSED
         PyErr_SetString(PyExc_IndexError, "Index out of bounds (axis 0)");
         __PYX_ERR(0, 66, __pyx_L1_error)
     }
-        __pyx_t_14.data += __pyx_tmp_idx * __pyx_tmp_stride;
+        __pyx_t_12.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
-__pyx_t_14.shape[0] = __pyx_v_mz.shape[1];
-__pyx_t_14.strides[0] = __pyx_v_mz.strides[1];
-    __pyx_t_14.suboffsets[0] = -1;
+__pyx_t_12.shape[0] = __pyx_v_mz.shape[1];
+__pyx_t_12.strides[0] = __pyx_v_mz.strides[1];
+    __pyx_t_12.suboffsets[0] = -1;
 
 __PYX_XDEC_MEMVIEW(&__pyx_v_temp_mz_y, 1);
-        __pyx_v_temp_mz_y = __pyx_t_14;
-        __pyx_t_14.memview = NULL;
-        __pyx_t_14.data = NULL;
+        __pyx_v_temp_mz_y = __pyx_t_12;
+        __pyx_t_12.memview = NULL;
+        __pyx_t_12.data = NULL;
 
         /* "prcs/parallel/cpu_kernel.pyx":67
- *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x] <= precursor_tolerance):
+ *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x]) <= precursor_tolerance:
  *                 temp_mz_y = mz[location_y]
  *                 temp_mz_x = mz[block_dimensions[0] + location_x]             # <<<<<<<<<<<<<<
  *                 temp_intensity_y = intensity[location_y]
  *                 temp_intensity_x = intensity[block_dimensions[0] + location_x]
  */
-        __pyx_t_15 = 0;
+        __pyx_t_13 = 0;
         __pyx_t_2 = -1;
-        if (__pyx_t_15 < 0) {
-          __pyx_t_15 += __pyx_v_block_dimensions.shape[0];
-          if (unlikely(__pyx_t_15 < 0)) __pyx_t_2 = 0;
-        } else if (unlikely(__pyx_t_15 >= __pyx_v_block_dimensions.shape[0])) __pyx_t_2 = 0;
+        if (__pyx_t_13 < 0) {
+          __pyx_t_13 += __pyx_v_block_dimensions.shape[0];
+          if (unlikely(__pyx_t_13 < 0)) __pyx_t_2 = 0;
+        } else if (unlikely(__pyx_t_13 >= __pyx_v_block_dimensions.shape[0])) __pyx_t_2 = 0;
         if (unlikely(__pyx_t_2 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_2);
           __PYX_ERR(0, 67, __pyx_L1_error)
         }
-        __pyx_t_14.data = __pyx_v_mz.data;
-        __pyx_t_14.memview = __pyx_v_mz.memview;
-        __PYX_INC_MEMVIEW(&__pyx_t_14, 0);
+        __pyx_t_12.data = __pyx_v_mz.data;
+        __pyx_t_12.memview = __pyx_v_mz.memview;
+        __PYX_INC_MEMVIEW(&__pyx_t_12, 0);
         {
-    Py_ssize_t __pyx_tmp_idx = ((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_BLOCK_DIMENSIONS_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_block_dimensions.data + __pyx_t_15 * __pyx_v_block_dimensions.strides[0]) ))) + __pyx_v_location_x);
+    Py_ssize_t __pyx_tmp_idx = ((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_BLOCK_DIMENSIONS_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_block_dimensions.data + __pyx_t_13 * __pyx_v_block_dimensions.strides[0]) ))) + __pyx_v_location_x);
     Py_ssize_t __pyx_tmp_shape = __pyx_v_mz.shape[0];
     Py_ssize_t __pyx_tmp_stride = __pyx_v_mz.strides[0];
     if (1 && (__pyx_tmp_idx < 0))
@@ -2818,17 +2811,17 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_mz_y, 1);
         PyErr_SetString(PyExc_IndexError, "Index out of bounds (axis 0)");
         __PYX_ERR(0, 67, __pyx_L1_error)
     }
-        __pyx_t_14.data += __pyx_tmp_idx * __pyx_tmp_stride;
+        __pyx_t_12.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
-__pyx_t_14.shape[0] = __pyx_v_mz.shape[1];
-__pyx_t_14.strides[0] = __pyx_v_mz.strides[1];
-    __pyx_t_14.suboffsets[0] = -1;
+__pyx_t_12.shape[0] = __pyx_v_mz.shape[1];
+__pyx_t_12.strides[0] = __pyx_v_mz.strides[1];
+    __pyx_t_12.suboffsets[0] = -1;
 
 __PYX_XDEC_MEMVIEW(&__pyx_v_temp_mz_x, 1);
-        __pyx_v_temp_mz_x = __pyx_t_14;
-        __pyx_t_14.memview = NULL;
-        __pyx_t_14.data = NULL;
+        __pyx_v_temp_mz_x = __pyx_t_12;
+        __pyx_t_12.memview = NULL;
+        __pyx_t_12.data = NULL;
 
         /* "prcs/parallel/cpu_kernel.pyx":68
  *                 temp_mz_y = mz[location_y]
@@ -2837,9 +2830,9 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_mz_x, 1);
  *                 temp_intensity_x = intensity[block_dimensions[0] + location_x]
  * 
  */
-        __pyx_t_16.data = __pyx_v_intensity.data;
-        __pyx_t_16.memview = __pyx_v_intensity.memview;
-        __PYX_INC_MEMVIEW(&__pyx_t_16, 0);
+        __pyx_t_14.data = __pyx_v_intensity.data;
+        __pyx_t_14.memview = __pyx_v_intensity.memview;
+        __PYX_INC_MEMVIEW(&__pyx_t_14, 0);
         {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_location_y;
     Py_ssize_t __pyx_tmp_shape = __pyx_v_intensity.shape[0];
@@ -2850,17 +2843,17 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_mz_x, 1);
         PyErr_SetString(PyExc_IndexError, "Index out of bounds (axis 0)");
         __PYX_ERR(0, 68, __pyx_L1_error)
     }
-        __pyx_t_16.data += __pyx_tmp_idx * __pyx_tmp_stride;
+        __pyx_t_14.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
-__pyx_t_16.shape[0] = __pyx_v_intensity.shape[1];
-__pyx_t_16.strides[0] = __pyx_v_intensity.strides[1];
-    __pyx_t_16.suboffsets[0] = -1;
+__pyx_t_14.shape[0] = __pyx_v_intensity.shape[1];
+__pyx_t_14.strides[0] = __pyx_v_intensity.strides[1];
+    __pyx_t_14.suboffsets[0] = -1;
 
 __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_y, 1);
-        __pyx_v_temp_intensity_y = __pyx_t_16;
-        __pyx_t_16.memview = NULL;
-        __pyx_t_16.data = NULL;
+        __pyx_v_temp_intensity_y = __pyx_t_14;
+        __pyx_t_14.memview = NULL;
+        __pyx_t_14.data = NULL;
 
         /* "prcs/parallel/cpu_kernel.pyx":69
  *                 temp_mz_x = mz[block_dimensions[0] + location_x]
@@ -2869,21 +2862,21 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_y, 1);
  * 
  *                 dp = 0.0
  */
-        __pyx_t_17 = 0;
+        __pyx_t_15 = 0;
         __pyx_t_2 = -1;
-        if (__pyx_t_17 < 0) {
-          __pyx_t_17 += __pyx_v_block_dimensions.shape[0];
-          if (unlikely(__pyx_t_17 < 0)) __pyx_t_2 = 0;
-        } else if (unlikely(__pyx_t_17 >= __pyx_v_block_dimensions.shape[0])) __pyx_t_2 = 0;
+        if (__pyx_t_15 < 0) {
+          __pyx_t_15 += __pyx_v_block_dimensions.shape[0];
+          if (unlikely(__pyx_t_15 < 0)) __pyx_t_2 = 0;
+        } else if (unlikely(__pyx_t_15 >= __pyx_v_block_dimensions.shape[0])) __pyx_t_2 = 0;
         if (unlikely(__pyx_t_2 != -1)) {
           __Pyx_RaiseBufferIndexError(__pyx_t_2);
           __PYX_ERR(0, 69, __pyx_L1_error)
         }
-        __pyx_t_16.data = __pyx_v_intensity.data;
-        __pyx_t_16.memview = __pyx_v_intensity.memview;
-        __PYX_INC_MEMVIEW(&__pyx_t_16, 0);
+        __pyx_t_14.data = __pyx_v_intensity.data;
+        __pyx_t_14.memview = __pyx_v_intensity.memview;
+        __PYX_INC_MEMVIEW(&__pyx_t_14, 0);
         {
-    Py_ssize_t __pyx_tmp_idx = ((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_BLOCK_DIMENSIONS_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_block_dimensions.data + __pyx_t_17 * __pyx_v_block_dimensions.strides[0]) ))) + __pyx_v_location_x);
+    Py_ssize_t __pyx_tmp_idx = ((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_BLOCK_DIMENSIONS_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_block_dimensions.data + __pyx_t_15 * __pyx_v_block_dimensions.strides[0]) ))) + __pyx_v_location_x);
     Py_ssize_t __pyx_tmp_shape = __pyx_v_intensity.shape[0];
     Py_ssize_t __pyx_tmp_stride = __pyx_v_intensity.strides[0];
     if (1 && (__pyx_tmp_idx < 0))
@@ -2892,17 +2885,17 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_y, 1);
         PyErr_SetString(PyExc_IndexError, "Index out of bounds (axis 0)");
         __PYX_ERR(0, 69, __pyx_L1_error)
     }
-        __pyx_t_16.data += __pyx_tmp_idx * __pyx_tmp_stride;
+        __pyx_t_14.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
-__pyx_t_16.shape[0] = __pyx_v_intensity.shape[1];
-__pyx_t_16.strides[0] = __pyx_v_intensity.strides[1];
-    __pyx_t_16.suboffsets[0] = -1;
+__pyx_t_14.shape[0] = __pyx_v_intensity.shape[1];
+__pyx_t_14.strides[0] = __pyx_v_intensity.strides[1];
+    __pyx_t_14.suboffsets[0] = -1;
 
 __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
-        __pyx_v_temp_intensity_x = __pyx_t_16;
-        __pyx_t_16.memview = NULL;
-        __pyx_t_16.data = NULL;
+        __pyx_v_temp_intensity_x = __pyx_t_14;
+        __pyx_t_14.memview = NULL;
+        __pyx_t_14.data = NULL;
 
         /* "prcs/parallel/cpu_kernel.pyx":71
  *                 temp_intensity_x = intensity[block_dimensions[0] + location_x]
@@ -2939,16 +2932,16 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
  *                         dp += temp_intensity_y[y_ptr] * temp_intensity_x[x_ptr]
  */
         while (1) {
-          __pyx_t_18 = ((__pyx_v_y_ptr < __pyx_v_num_of_peaks) != 0);
-          if (__pyx_t_18) {
+          __pyx_t_16 = ((__pyx_v_y_ptr < __pyx_v_num_of_peaks) != 0);
+          if (__pyx_t_16) {
           } else {
-            __pyx_t_13 = __pyx_t_18;
+            __pyx_t_11 = __pyx_t_16;
             goto __pyx_L10_bool_binop_done;
           }
-          __pyx_t_18 = ((__pyx_v_x_ptr < __pyx_v_num_of_peaks) != 0);
-          __pyx_t_13 = __pyx_t_18;
+          __pyx_t_16 = ((__pyx_v_x_ptr < __pyx_v_num_of_peaks) != 0);
+          __pyx_t_11 = __pyx_t_16;
           __pyx_L10_bool_binop_done:;
-          if (!__pyx_t_13) break;
+          if (!__pyx_t_11) break;
 
           /* "prcs/parallel/cpu_kernel.pyx":76
  * 
@@ -2957,22 +2950,22 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
  *                         dp += temp_intensity_y[y_ptr] * temp_intensity_x[x_ptr]
  *                         y_ptr += 1
  */
-          __pyx_t_19 = __pyx_v_y_ptr;
+          __pyx_t_17 = __pyx_v_y_ptr;
           __pyx_t_2 = -1;
-          if (unlikely(__pyx_t_19 >= (size_t)__pyx_v_temp_mz_y.shape[0])) __pyx_t_2 = 0;
+          if (unlikely(__pyx_t_17 >= (size_t)__pyx_v_temp_mz_y.shape[0])) __pyx_t_2 = 0;
           if (unlikely(__pyx_t_2 != -1)) {
             __Pyx_RaiseBufferIndexError(__pyx_t_2);
             __PYX_ERR(0, 76, __pyx_L1_error)
           }
-          __pyx_t_20 = __pyx_v_x_ptr;
+          __pyx_t_18 = __pyx_v_x_ptr;
           __pyx_t_2 = -1;
-          if (unlikely(__pyx_t_20 >= (size_t)__pyx_v_temp_mz_x.shape[0])) __pyx_t_2 = 0;
+          if (unlikely(__pyx_t_18 >= (size_t)__pyx_v_temp_mz_x.shape[0])) __pyx_t_2 = 0;
           if (unlikely(__pyx_t_2 != -1)) {
             __Pyx_RaiseBufferIndexError(__pyx_t_2);
             __PYX_ERR(0, 76, __pyx_L1_error)
           }
-          __pyx_t_13 = (((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_MZ_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_mz_y.data + __pyx_t_19 * __pyx_v_temp_mz_y.strides[0]) ))) == (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_MZ_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_mz_x.data + __pyx_t_20 * __pyx_v_temp_mz_x.strides[0]) )))) != 0);
-          if (__pyx_t_13) {
+          __pyx_t_11 = (((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_MZ_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_mz_y.data + __pyx_t_17 * __pyx_v_temp_mz_y.strides[0]) ))) == (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_MZ_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_mz_x.data + __pyx_t_18 * __pyx_v_temp_mz_x.strides[0]) )))) != 0);
+          if (__pyx_t_11) {
 
             /* "prcs/parallel/cpu_kernel.pyx":77
  *                 while y_ptr < num_of_peaks and x_ptr < num_of_peaks:
@@ -2981,21 +2974,21 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
  *                         y_ptr += 1
  *                         x_ptr += 1
  */
-            __pyx_t_21 = __pyx_v_y_ptr;
+            __pyx_t_19 = __pyx_v_y_ptr;
             __pyx_t_2 = -1;
-            if (unlikely(__pyx_t_21 >= (size_t)__pyx_v_temp_intensity_y.shape[0])) __pyx_t_2 = 0;
+            if (unlikely(__pyx_t_19 >= (size_t)__pyx_v_temp_intensity_y.shape[0])) __pyx_t_2 = 0;
             if (unlikely(__pyx_t_2 != -1)) {
               __Pyx_RaiseBufferIndexError(__pyx_t_2);
               __PYX_ERR(0, 77, __pyx_L1_error)
             }
-            __pyx_t_22 = __pyx_v_x_ptr;
+            __pyx_t_20 = __pyx_v_x_ptr;
             __pyx_t_2 = -1;
-            if (unlikely(__pyx_t_22 >= (size_t)__pyx_v_temp_intensity_x.shape[0])) __pyx_t_2 = 0;
+            if (unlikely(__pyx_t_20 >= (size_t)__pyx_v_temp_intensity_x.shape[0])) __pyx_t_2 = 0;
             if (unlikely(__pyx_t_2 != -1)) {
               __Pyx_RaiseBufferIndexError(__pyx_t_2);
               __PYX_ERR(0, 77, __pyx_L1_error)
             }
-            __pyx_v_dp = (__pyx_v_dp + ((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_INTENSITY_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_intensity_y.data + __pyx_t_21 * __pyx_v_temp_intensity_y.strides[0]) ))) * (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_INTENSITY_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_intensity_x.data + __pyx_t_22 * __pyx_v_temp_intensity_x.strides[0]) )))));
+            __pyx_v_dp = (__pyx_v_dp + ((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_INTENSITY_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_intensity_y.data + __pyx_t_19 * __pyx_v_temp_intensity_y.strides[0]) ))) * (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_INTENSITY_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_intensity_x.data + __pyx_t_20 * __pyx_v_temp_intensity_x.strides[0]) )))));
 
             /* "prcs/parallel/cpu_kernel.pyx":78
  *                     if temp_mz_y[y_ptr] == temp_mz_x[x_ptr]:
@@ -3032,22 +3025,22 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
  *                         y_ptr += 1
  *                     else:
  */
-          __pyx_t_23 = __pyx_v_y_ptr;
+          __pyx_t_21 = __pyx_v_y_ptr;
           __pyx_t_2 = -1;
-          if (unlikely(__pyx_t_23 >= (size_t)__pyx_v_temp_mz_y.shape[0])) __pyx_t_2 = 0;
+          if (unlikely(__pyx_t_21 >= (size_t)__pyx_v_temp_mz_y.shape[0])) __pyx_t_2 = 0;
           if (unlikely(__pyx_t_2 != -1)) {
             __Pyx_RaiseBufferIndexError(__pyx_t_2);
             __PYX_ERR(0, 80, __pyx_L1_error)
           }
-          __pyx_t_24 = __pyx_v_x_ptr;
+          __pyx_t_22 = __pyx_v_x_ptr;
           __pyx_t_2 = -1;
-          if (unlikely(__pyx_t_24 >= (size_t)__pyx_v_temp_mz_x.shape[0])) __pyx_t_2 = 0;
+          if (unlikely(__pyx_t_22 >= (size_t)__pyx_v_temp_mz_x.shape[0])) __pyx_t_2 = 0;
           if (unlikely(__pyx_t_2 != -1)) {
             __Pyx_RaiseBufferIndexError(__pyx_t_2);
             __PYX_ERR(0, 80, __pyx_L1_error)
           }
-          __pyx_t_13 = (((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_MZ_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_mz_y.data + __pyx_t_23 * __pyx_v_temp_mz_y.strides[0]) ))) < (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_MZ_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_mz_x.data + __pyx_t_24 * __pyx_v_temp_mz_x.strides[0]) )))) != 0);
-          if (__pyx_t_13) {
+          __pyx_t_11 = (((*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_MZ_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_mz_y.data + __pyx_t_21 * __pyx_v_temp_mz_y.strides[0]) ))) < (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_MZ_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_temp_mz_x.data + __pyx_t_22 * __pyx_v_temp_mz_x.strides[0]) )))) != 0);
+          if (__pyx_t_11) {
 
             /* "prcs/parallel/cpu_kernel.pyx":81
  *                         x_ptr += 1
@@ -3088,8 +3081,8 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
  *                     global_location_y = location_y + offset[0]
  *                     global_location_x = location_x + offset[1]
  */
-        __pyx_t_13 = ((__pyx_v_dp > __pyx_v_dot_product_threshold) != 0);
-        if (__pyx_t_13) {
+        __pyx_t_11 = ((__pyx_v_dp > __pyx_v_dot_product_threshold) != 0);
+        if (__pyx_t_11) {
 
           /* "prcs/parallel/cpu_kernel.pyx":86
  * 
@@ -3098,17 +3091,17 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
  *                     global_location_x = location_x + offset[1]
  *                     if global_location_x > global_location_y:
  */
-          __pyx_t_25 = 0;
+          __pyx_t_23 = 0;
           __pyx_t_2 = -1;
-          if (__pyx_t_25 < 0) {
-            __pyx_t_25 += __pyx_v_offset.shape[0];
-            if (unlikely(__pyx_t_25 < 0)) __pyx_t_2 = 0;
-          } else if (unlikely(__pyx_t_25 >= __pyx_v_offset.shape[0])) __pyx_t_2 = 0;
+          if (__pyx_t_23 < 0) {
+            __pyx_t_23 += __pyx_v_offset.shape[0];
+            if (unlikely(__pyx_t_23 < 0)) __pyx_t_2 = 0;
+          } else if (unlikely(__pyx_t_23 >= __pyx_v_offset.shape[0])) __pyx_t_2 = 0;
           if (unlikely(__pyx_t_2 != -1)) {
             __Pyx_RaiseBufferIndexError(__pyx_t_2);
             __PYX_ERR(0, 86, __pyx_L1_error)
           }
-          __pyx_v_global_location_y = (__pyx_v_location_y + (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_OFFSET_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_offset.data + __pyx_t_25 * __pyx_v_offset.strides[0]) ))));
+          __pyx_v_global_location_y = (__pyx_v_location_y + (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_OFFSET_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_offset.data + __pyx_t_23 * __pyx_v_offset.strides[0]) ))));
 
           /* "prcs/parallel/cpu_kernel.pyx":87
  *                 if dp > dot_product_threshold:
@@ -3117,17 +3110,17 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
  *                     if global_location_x > global_location_y:
  *                         dot_product[count] = dp
  */
-          __pyx_t_26 = 1;
+          __pyx_t_24 = 1;
           __pyx_t_2 = -1;
-          if (__pyx_t_26 < 0) {
-            __pyx_t_26 += __pyx_v_offset.shape[0];
-            if (unlikely(__pyx_t_26 < 0)) __pyx_t_2 = 0;
-          } else if (unlikely(__pyx_t_26 >= __pyx_v_offset.shape[0])) __pyx_t_2 = 0;
+          if (__pyx_t_24 < 0) {
+            __pyx_t_24 += __pyx_v_offset.shape[0];
+            if (unlikely(__pyx_t_24 < 0)) __pyx_t_2 = 0;
+          } else if (unlikely(__pyx_t_24 >= __pyx_v_offset.shape[0])) __pyx_t_2 = 0;
           if (unlikely(__pyx_t_2 != -1)) {
             __Pyx_RaiseBufferIndexError(__pyx_t_2);
             __PYX_ERR(0, 87, __pyx_L1_error)
           }
-          __pyx_v_global_location_x = (__pyx_v_location_x + (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_OFFSET_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_offset.data + __pyx_t_26 * __pyx_v_offset.strides[0]) ))));
+          __pyx_v_global_location_x = (__pyx_v_location_x + (*((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_OFFSET_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_offset.data + __pyx_t_24 * __pyx_v_offset.strides[0]) ))));
 
           /* "prcs/parallel/cpu_kernel.pyx":88
  *                     global_location_y = location_y + offset[0]
@@ -3136,8 +3129,8 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
  *                         dot_product[count] = dp
  *                         edge[count][0] = global_location_y
  */
-          __pyx_t_13 = ((__pyx_v_global_location_x > __pyx_v_global_location_y) != 0);
-          if (__pyx_t_13) {
+          __pyx_t_11 = ((__pyx_v_global_location_x > __pyx_v_global_location_y) != 0);
+          if (__pyx_t_11) {
 
             /* "prcs/parallel/cpu_kernel.pyx":89
  *                     global_location_x = location_x + offset[1]
@@ -3146,14 +3139,14 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
  *                         edge[count][0] = global_location_y
  *                         edge[count][1] = global_location_x
  */
-            __pyx_t_27 = __pyx_v_count;
+            __pyx_t_25 = __pyx_v_count;
             __pyx_t_2 = -1;
-            if (unlikely(__pyx_t_27 >= (size_t)__pyx_v_dot_product.shape[0])) __pyx_t_2 = 0;
+            if (unlikely(__pyx_t_25 >= (size_t)__pyx_v_dot_product.shape[0])) __pyx_t_2 = 0;
             if (unlikely(__pyx_t_2 != -1)) {
               __Pyx_RaiseBufferIndexError(__pyx_t_2);
               __PYX_ERR(0, 89, __pyx_L1_error)
             }
-            *((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_DOT_PRODUCT_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_dot_product.data + __pyx_t_27 * __pyx_v_dot_product.strides[0]) )) = __pyx_v_dp;
+            *((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_DOT_PRODUCT_DATA_TYPE *) ( /* dim=0 */ (__pyx_v_dot_product.data + __pyx_t_25 * __pyx_v_dot_product.strides[0]) )) = __pyx_v_dp;
 
             /* "prcs/parallel/cpu_kernel.pyx":90
  *                     if global_location_x > global_location_y:
@@ -3162,9 +3155,9 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
  *                         edge[count][1] = global_location_x
  *                         count += 1
  */
-            __pyx_t_28.data = __pyx_v_edge.data;
-            __pyx_t_28.memview = __pyx_v_edge.memview;
-            __PYX_INC_MEMVIEW(&__pyx_t_28, 0);
+            __pyx_t_26.data = __pyx_v_edge.data;
+            __pyx_t_26.memview = __pyx_v_edge.memview;
+            __PYX_INC_MEMVIEW(&__pyx_t_26, 0);
             {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_count;
     Py_ssize_t __pyx_tmp_shape = __pyx_v_edge.shape[0];
@@ -3175,27 +3168,27 @@ __PYX_XDEC_MEMVIEW(&__pyx_v_temp_intensity_x, 1);
         PyErr_SetString(PyExc_IndexError, "Index out of bounds (axis 0)");
         __PYX_ERR(0, 90, __pyx_L1_error)
     }
-        __pyx_t_28.data += __pyx_tmp_idx * __pyx_tmp_stride;
+        __pyx_t_26.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
-__pyx_t_28.shape[0] = __pyx_v_edge.shape[1];
-__pyx_t_28.strides[0] = __pyx_v_edge.strides[1];
-    __pyx_t_28.suboffsets[0] = -1;
+__pyx_t_26.shape[0] = __pyx_v_edge.shape[1];
+__pyx_t_26.strides[0] = __pyx_v_edge.strides[1];
+    __pyx_t_26.suboffsets[0] = -1;
 
-__pyx_t_29 = 0;
+__pyx_t_27 = 0;
             __pyx_t_2 = -1;
-            if (__pyx_t_29 < 0) {
-              __pyx_t_29 += __pyx_t_28.shape[0];
-              if (unlikely(__pyx_t_29 < 0)) __pyx_t_2 = 0;
-            } else if (unlikely(__pyx_t_29 >= __pyx_t_28.shape[0])) __pyx_t_2 = 0;
+            if (__pyx_t_27 < 0) {
+              __pyx_t_27 += __pyx_t_26.shape[0];
+              if (unlikely(__pyx_t_27 < 0)) __pyx_t_2 = 0;
+            } else if (unlikely(__pyx_t_27 >= __pyx_t_26.shape[0])) __pyx_t_2 = 0;
             if (unlikely(__pyx_t_2 != -1)) {
               __Pyx_RaiseBufferIndexError(__pyx_t_2);
               __PYX_ERR(0, 90, __pyx_L1_error)
             }
-            *((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_EDGE_DATA_TYPE *) ( /* dim=0 */ (__pyx_t_28.data + __pyx_t_29 * __pyx_t_28.strides[0]) )) = __pyx_v_global_location_y;
-            __PYX_XDEC_MEMVIEW(&__pyx_t_28, 1);
-            __pyx_t_28.memview = NULL;
-            __pyx_t_28.data = NULL;
+            *((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_EDGE_DATA_TYPE *) ( /* dim=0 */ (__pyx_t_26.data + __pyx_t_27 * __pyx_t_26.strides[0]) )) = __pyx_v_global_location_y;
+            __PYX_XDEC_MEMVIEW(&__pyx_t_26, 1);
+            __pyx_t_26.memview = NULL;
+            __pyx_t_26.data = NULL;
 
             /* "prcs/parallel/cpu_kernel.pyx":91
  *                         dot_product[count] = dp
@@ -3204,9 +3197,9 @@ __pyx_t_29 = 0;
  *                         count += 1
  *     return count
  */
-            __pyx_t_28.data = __pyx_v_edge.data;
-            __pyx_t_28.memview = __pyx_v_edge.memview;
-            __PYX_INC_MEMVIEW(&__pyx_t_28, 0);
+            __pyx_t_26.data = __pyx_v_edge.data;
+            __pyx_t_26.memview = __pyx_v_edge.memview;
+            __PYX_INC_MEMVIEW(&__pyx_t_26, 0);
             {
     Py_ssize_t __pyx_tmp_idx = __pyx_v_count;
     Py_ssize_t __pyx_tmp_shape = __pyx_v_edge.shape[0];
@@ -3217,27 +3210,27 @@ __pyx_t_29 = 0;
         PyErr_SetString(PyExc_IndexError, "Index out of bounds (axis 0)");
         __PYX_ERR(0, 91, __pyx_L1_error)
     }
-        __pyx_t_28.data += __pyx_tmp_idx * __pyx_tmp_stride;
+        __pyx_t_26.data += __pyx_tmp_idx * __pyx_tmp_stride;
 }
 
-__pyx_t_28.shape[0] = __pyx_v_edge.shape[1];
-__pyx_t_28.strides[0] = __pyx_v_edge.strides[1];
-    __pyx_t_28.suboffsets[0] = -1;
+__pyx_t_26.shape[0] = __pyx_v_edge.shape[1];
+__pyx_t_26.strides[0] = __pyx_v_edge.strides[1];
+    __pyx_t_26.suboffsets[0] = -1;
 
-__pyx_t_30 = 1;
+__pyx_t_28 = 1;
             __pyx_t_2 = -1;
-            if (__pyx_t_30 < 0) {
-              __pyx_t_30 += __pyx_t_28.shape[0];
-              if (unlikely(__pyx_t_30 < 0)) __pyx_t_2 = 0;
-            } else if (unlikely(__pyx_t_30 >= __pyx_t_28.shape[0])) __pyx_t_2 = 0;
+            if (__pyx_t_28 < 0) {
+              __pyx_t_28 += __pyx_t_26.shape[0];
+              if (unlikely(__pyx_t_28 < 0)) __pyx_t_2 = 0;
+            } else if (unlikely(__pyx_t_28 >= __pyx_t_26.shape[0])) __pyx_t_2 = 0;
             if (unlikely(__pyx_t_2 != -1)) {
               __Pyx_RaiseBufferIndexError(__pyx_t_2);
               __PYX_ERR(0, 91, __pyx_L1_error)
             }
-            *((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_EDGE_DATA_TYPE *) ( /* dim=0 */ (__pyx_t_28.data + __pyx_t_30 * __pyx_t_28.strides[0]) )) = __pyx_v_global_location_x;
-            __PYX_XDEC_MEMVIEW(&__pyx_t_28, 1);
-            __pyx_t_28.memview = NULL;
-            __pyx_t_28.data = NULL;
+            *((__pyx_t_4prcs_8parallel_10cpu_kernel_CG_EDGE_DATA_TYPE *) ( /* dim=0 */ (__pyx_t_26.data + __pyx_t_28 * __pyx_t_26.strides[0]) )) = __pyx_v_global_location_x;
+            __PYX_XDEC_MEMVIEW(&__pyx_t_26, 1);
+            __pyx_t_26.memview = NULL;
+            __pyx_t_26.data = NULL;
 
             /* "prcs/parallel/cpu_kernel.pyx":92
  *                         edge[count][0] = global_location_y
@@ -3269,7 +3262,7 @@ __pyx_t_30 = 1;
         /* "prcs/parallel/cpu_kernel.pyx":65
  *     for location_y in range(block_dimensions[0]):
  *         for location_x in range(block_dimensions[1]):
- *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x] <= precursor_tolerance):             # <<<<<<<<<<<<<<
+ *             if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x]) <= precursor_tolerance:             # <<<<<<<<<<<<<<
  *                 temp_mz_y = mz[location_y]
  *                 temp_mz_x = mz[block_dimensions[0] + location_x]
  */
@@ -3285,10 +3278,10 @@ __pyx_t_30 = 1;
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __pyx_t_12 = __Pyx_PyInt_From_npy_uint32(__pyx_v_count); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 93, __pyx_L1_error)
-  __Pyx_GOTREF(__pyx_t_12);
-  __pyx_r = __pyx_t_12;
-  __pyx_t_12 = 0;
+  __pyx_t_29 = __Pyx_PyInt_From_npy_uint32(__pyx_v_count); if (unlikely(!__pyx_t_29)) __PYX_ERR(0, 93, __pyx_L1_error)
+  __Pyx_GOTREF(__pyx_t_29);
+  __pyx_r = __pyx_t_29;
+  __pyx_t_29 = 0;
   goto __pyx_L0;
 
   /* "prcs/parallel/cpu_kernel.pyx":44
@@ -3301,11 +3294,10 @@ __pyx_t_30 = 1;
 
   /* function exit code */
   __pyx_L1_error:;
-  __Pyx_XDECREF(__pyx_t_11);
-  __Pyx_XDECREF(__pyx_t_12);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_12, 1);
   __PYX_XDEC_MEMVIEW(&__pyx_t_14, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_16, 1);
-  __PYX_XDEC_MEMVIEW(&__pyx_t_28, 1);
+  __PYX_XDEC_MEMVIEW(&__pyx_t_26, 1);
+  __Pyx_XDECREF(__pyx_t_29);
   __Pyx_AddTraceback("prcs.parallel.cpu_kernel._cpu_kernel", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;

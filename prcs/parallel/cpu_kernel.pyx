@@ -62,7 +62,7 @@ def _cpu_kernel(CG_PRECURSOR_MASS_DATA_TYPE[:] precursor_mass,
 
     for location_y in range(block_dimensions[0]):
         for location_x in range(block_dimensions[1]):
-            if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x] <= precursor_tolerance):
+            if abs(precursor_mass[location_y] - precursor_mass[block_dimensions[0] + location_x]) <= precursor_tolerance:
                 temp_mz_y = mz[location_y]
                 temp_mz_x = mz[block_dimensions[0] + location_x]
                 temp_intensity_y = intensity[location_y]
