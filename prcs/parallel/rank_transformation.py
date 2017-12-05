@@ -128,7 +128,8 @@ def rank_transform():
         reporter.start()
         for i in range(num_of_threads): processes[i].join()
         exit_signal.value = True
-        reporter.join()
+        if reporter.is_alive():
+            reporter.join()
     except (Exception, KeyboardInterrupt) as e:
         if type(e) is KeyboardInterrupt:
             with log_lock:
@@ -136,7 +137,8 @@ def rank_transform():
         exit_signal.value = True
         with log_lock:
             logging.debug('Waiting processes to exit.')
-        reporter.join()
+        if reporter.is_alive():
+            reporter.join()
         for i in range(num_of_threads):
             if processes[i].is_alive():
                 processes[i].join()
