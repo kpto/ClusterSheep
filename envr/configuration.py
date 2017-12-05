@@ -323,10 +323,9 @@ class Configuration:
         if temp_int.value == -1 or temp_int.value > num_logical:
             temp_int.value = num_logical
         elif temp_int.value == 0:
-            return self.gr_num_of_threads
+            return self.gr_num_of_threads.value
         else:
-            temp_int.value = temp_int.value
-        return temp_int
+            return temp_int.value
 
     def _read_file(self, file):
         function_map = self.get_function_map()
