@@ -117,7 +117,31 @@ class IdentificationLUT:
         return
 
     def get_identification(self, ms_exp_file_name, native_id):
-        query = self.cursor.execute('SELECT * FROM "{}" WHERE "native_id"="{}"'.format(ms_exp_file_name, native_id)).fetchone()
+        try:
+            query = self.cursor.execute('SELECT * FROM "{}" WHERE "native_id"="{}"'.format(ms_exp_file_name, native_id)).fetchone()
+        except Exception:
+            query = self.cursor.execute('SELECT name FROM sqlite_master WHERE type="table" AND name="{}"'.format(ms_exp_file_name)).fetchone()
+            if query is None:
+                self.cursor.execute('''
+                    CREATE TABLE "{}" (
+                    "native_id" INTEGER UNIQUE,
+                    "peptide" TEXT,
+                    "charge" INTEGER,
+                    "probability" REAL,
+                    "source" TEXT,
+                    "is_decoy" INTEGER,
+                    "prev_aa" TEXT,
+                    "next_aa" TEXT,
+                    "mods_pos" BLOB,
+                    "mods_mass" BLOB,
+                    "nterm_mod" TEXT,
+                    "cterm_mod" TEXT,
+                    "iden_file_id" INTEGER,
+                    "l_offset" INTEGER,
+                    "r_offset" INTEGER
+                    )'''.format(ms_exp_file_name))
+                return query
+            else: raise
         if query is None: return None
         identification = Identification()
         identification.peptide = query[1]
