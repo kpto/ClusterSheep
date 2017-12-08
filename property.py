@@ -25,8 +25,8 @@ import numpy as np
 
 
 # ====BEGIN OF GLOBAL VARIABLE DECLARATION====
-VERSION = '0.90.3'
-NAME = 'SpectraCLUST'
+VERSION = '0.90.4'
+NAME = 'ClusterSheep'
 
 # size of the header of customized file format for metadata
 FILE_HEADER_SIZE = 10240
@@ -88,16 +88,16 @@ C_DATA_TYPE = {'int32': 'int32_t',
                'float32': 'float',
                'bool': 'bool'}
 
-FILE_EXTENSION_SESSION = '.spcsess'
-FILE_EXTENSION_LOG = '.spclogg'
-FILE_EXTENSION_INTERNAL_INDEX = '.spcindx'
-FILE_EXTENSION_IDEN_LUT = '.spciden'
-FILE_EXTENSION_RANKED_SPECTRA = '.spcrksp'
-FILE_EXTENSION_CLUSTERS = '.spcclut'
-FILE_EXTENSION_RAW_CLUSTERS = '.spcrawc'
-FILE_EXTENSION_TEMPORARY = '.spctemp'
-FILE_EXTENSION_CONSOLE_HISTORY = '.spcchis'
-FILE_EXTENSION_VIEWER_HISTORY = '.spcvhis'
+FILE_EXTENSION_SESSION = '.cssess'
+FILE_EXTENSION_LOG = '.cslogg'
+FILE_EXTENSION_INTERNAL_INDEX = '.csindx'
+FILE_EXTENSION_IDEN_LUT = '.csiden'
+FILE_EXTENSION_RANKED_SPECTRA = '.csrksp'
+FILE_EXTENSION_CLUSTERS = '.csclut'
+FILE_EXTENSION_RAW_CLUSTERS = '.csrawc'
+FILE_EXTENSION_TEMPORARY = '.cstemp'
+FILE_EXTENSION_CONSOLE_HISTORY = '.cschis'
+FILE_EXTENSION_VIEWER_HISTORY = '.csvhis'
 
 HEADER_LABEL_SESSION = 'spc_session'
 HEADER_LABEL_LOG = ''
