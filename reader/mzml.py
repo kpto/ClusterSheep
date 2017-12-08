@@ -102,8 +102,8 @@ def build_index(file, log_lock=Lock()):
                 scan_num = int(re.search(b'<spectrum.+scan=([^"]+)', block).groups()[0])
                 peaks_count = int(re.search(b'<spectrum.+defaultArrayLength="([^"]+)', block).groups()[0])
                 precursor_mz = float(re.search(b'selected ion m/z.+value="([^"]+)', block).groups()[0])
-                precursor_charge = re.search(b'charge state.+value="([^"]+)', block).groups()[0]
-                # precursor_charge = int(precursor_charge.groups()[0]) if precursor_charge else 1
+                precursor_charge = re.search(b'charge state.+value="([^"]+)', block)
+                precursor_charge = int(precursor_charge.groups()[0]) if precursor_charge else 1
             except Exception:
                 if ignore_errors:
                     fail_count += 1
