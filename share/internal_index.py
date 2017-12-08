@@ -191,6 +191,9 @@ class Entry(object):
         from share.spectrum import Spectrum
         return Spectrum(self)
 
+    def s(self):
+        return self.get_spectrum()
+
     def __repr__(self):
         return pformat(vars(self))
 # ====END OF CLASS DEFINITION====
