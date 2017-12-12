@@ -1,0 +1,63 @@
+_clustersheep() 
+{
+    local cur prev opts
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    prevprev="${COMP_WORDS[COMP_CWORD-2]}"
+    opts="
+--name=
+--fork=
+--file-list=
+--force
+--use-cpu
+--ignore-errors
+--config=
+--dev-mode
+--checkpoint
+--preparation-only
+--stay-interactive
+--load-session=
+--no-saving
+--keep-trash
+--re-process
+--re-cluster
+--rebuild-iden-lut
+--list-gpus
+--print-session"
+
+    # Handle --xxxxxx=
+    if [[ ${prev} == "--"* && ${cur} == "=" && ${prev} != "--name" && ${prev} != "--fork" ]] ; then
+        compopt -o filenames
+        COMPREPLY=(*)
+        return 0
+    fi
+    # Handle --xxxxx=path
+    if [[ ${prev} == '=' && ${prevprev} != "--name" && ${prevprev} != "--fork" ]] ; then
+        # Unescape space
+        cur=${cur//\\ / }
+        # Expand tilder to $HOME
+        [[ ${cur} == "~/"* ]] && cur=${cur/\~/$HOME}
+        # Show completion if path exist (and escape spaces)
+        compopt -o filenames
+        local files=("${cur}"*)
+        [[ -e ${files[0]} ]] && COMPREPLY=( "${files[@]// /\ }" )
+        return 0
+    fi
+
+    # Handle other options
+    if [[ ${cur} == "-"* ]] ; then
+        COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+        if [[ ${#COMPREPLY[@]} == 1 && ${COMPREPLY[0]} != "--"*"=" ]] ; then
+            # If there's only one option, without =, then allow a space
+            compopt +o nospace
+        fi
+        return 0
+    fi
+    compopt -o filenames
+    local files=("${cur}"*)
+    [[ -e ${files[0]} ]] && COMPREPLY=( "${files[@]// /\ }" )
+    return 0
+}
+complete -o nospace -F _clustersheep clustersheep
+# credit goes to Rob W in https://unix.stackexchange.com/questions/55520
