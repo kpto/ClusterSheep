@@ -93,7 +93,7 @@ def refine_cluster():
         "index_label" BLOB
         )''')
     metadata = (VERSION, HEADER_LABEL_CLUSTERS, 0, pickle.dumps(uuid4()),
-                pickle.dumps(session.internal_index.magic_label), pickle.dumps(session.magic_label))
+                pickle.dumps(session.magic_label), pickle.dumps(session.internal_index.magic_label))
     cur.execute('INSERT INTO "metadata" VALUES (?, ?, ?, ?, ?, ?)', metadata)
     cur.execute('''
         CREATE TABLE "clusters" (
