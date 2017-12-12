@@ -99,12 +99,12 @@ FILE_EXTENSION_TEMPORARY = '.cstemp'
 FILE_EXTENSION_CONSOLE_HISTORY = '.cschis'
 FILE_EXTENSION_VIEWER_HISTORY = '.csvhis'
 
-HEADER_LABEL_SESSION = 'spc_session'
+HEADER_LABEL_SESSION = 'cs_session'
 HEADER_LABEL_LOG = ''
-HEADER_LABEL_INTERNAL_INDEX = 'spc_internal_index'
-HEADER_LABEL_IDEN_LUT = 'spc_identification_lut'
-HEADER_LABEL_RANKED_SPECTRA = 'spc_ranked_spectra'
-HEADER_LABEL_CLUSTERS = 'spc_clusters'
+HEADER_LABEL_INTERNAL_INDEX = 'cs_internal_index'
+HEADER_LABEL_IDEN_LUT = 'cs_identification_lut'
+HEADER_LABEL_RANKED_SPECTRA = 'cs_ranked_spectra'
+HEADER_LABEL_CLUSTERS = 'cs_clusters'
 # ====END OF GLOBAL VARIABLE DECLARATION====
 
 
