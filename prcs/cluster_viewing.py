@@ -58,9 +58,9 @@ viewer >>> save 100 format=png
      If path specified includes an file extension, format argument will override the extension.)
 viewer >>> save 100 file=~/graph_image format=png resolution=2000x2000
 
-Input "enrich cluster" to append identification information to clusters.
+Input "enrich clusters" to append identification information to clusters.
 This includes the major identification, the ratio of identified members to total and the number of identifications.
-Enter "enrich cluster update" to update the identification information if the identification lookup table was modified.
+Enter "enrich clusters update" to update the identification information if the identification lookup table was modified.
 
 Input "export {cluster_id} file={path}" to export a cluster to a text file. For example:
 viewer >>> export 100
@@ -179,7 +179,7 @@ def cluster_viewer(globals_):
             _write_history()
             interactive_console(globals_)
             _read_history()
-        elif command.startswith('enrich cluster'):
+        elif command.startswith('enrich clusters'):
             _enrich_cluster(command)
         elif command.startswith('export'):
             _export(command)
