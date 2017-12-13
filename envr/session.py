@@ -314,7 +314,7 @@ def _gather_paths(flags):
                 logging.error(err_msg)
             raise
 
-        patterns = {'.mzxml': ms_exp_files, '.mzml': ms_exp_files, '.pep.xml': iden_files}
+        patterns = {'.mzxml': ms_exp_files, '.mzml': ms_exp_files, '.pep.xml': iden_files, '.ipro.pep.xml': iden_files}
         if temp.is_dir():
             logging.info('Searching directory \"{}\"'.format(temp))
             for ff in temp.iterdir():
@@ -336,7 +336,7 @@ def _gather_paths(flags):
                     continue
                 else:
                     err_msg = '\nFile with unknown format was specified.' +\
-                              '\nThis program only supports *.mzXML, *.mzML and *.pep.xml.' +\
+                              '\nThis program only supports *.mzXML, *.mzML, *.pep.xml and *.ipro.pep.xml.' +\
                               '\nFile path: {}'.format(temp)
                     raise Exception(err_msg)
 
