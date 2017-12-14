@@ -222,7 +222,7 @@ def _add_iden_stat(cluster, data_no_iden, data_with_iden, bytes_count, update, i
             with iden_read_lock:
                 identification = entry.get_identification()
             if identification and not identification.is_decoy:
-                string = identification.to_tpp_string() + '/' + str(identification.charge)
+                string = identification.to_tpp_string_integer() + '/' + str(identification.charge)
                 if string not in idens:
                     idens[string] = len(idens)
                 ide_arr[i] = idens[string]

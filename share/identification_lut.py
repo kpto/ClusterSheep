@@ -178,6 +178,20 @@ class Identification:
         if self.cterm_mod: full_string += 'c[' + str(self.cterm_mod) + ']'
         return full_string
 
+    def to_tpp_string_integer(self):
+        idx = np.argsort(self.mods_pos)
+        mods_pos = self.mods_pos[idx]
+        mods_mass = self.mods_mass[idx]
+        full_string = self.peptide
+        for i, pos in enumerate(mods_pos):
+            offset = i * 4
+            pos += offset
+            full_string = full_string[:pos] + '[{}]' + full_string[pos:]
+        full_string = full_string.format(*mods_mass.astype(np.int32))
+        if self.nterm_mod: full_string = 'n[' + str(int(float(self.nterm_mod))) + ']' + full_string
+        if self.cterm_mod: full_string += 'c[' + str(int(float(self.cterm_mod))) + ']'
+        return full_string
+
     def to_string(self, tpp_string=None):
         full_string = tpp_string if tpp_string else self.to_tpp_string()
         prev_aa = self.prev_aa if self.prev_aa else ''
