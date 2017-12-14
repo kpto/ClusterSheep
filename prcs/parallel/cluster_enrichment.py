@@ -233,7 +233,7 @@ def _add_iden_stat(cluster, data_no_iden, data_with_iden, bytes_count, update, i
             num_idens = 0
             iden_ratio = 0.0
             # clear original information in case of updating
-            if 'ide' in graph.vp:
+            if 'ide' in graph.gp:
                 graph.vp.pop('ide')
                 graph.vp.pop('prb')
                 graph.gp.pop('ide')
@@ -242,7 +242,6 @@ def _add_iden_stat(cluster, data_no_iden, data_with_iden, bytes_count, update, i
                 data_with_iden.append((num_idens, None, iden_ratio, pre_mass_avg, pickled, cluster_id))
             else:
                 data_no_iden.append((num_idens, iden_ratio, pre_mass_avg, cluster_id))
-            return
         else:
             num_idens = len(idens)
             graph.vp['ide'] = ide
@@ -267,7 +266,6 @@ def _add_iden_stat(cluster, data_no_iden, data_with_iden, bytes_count, update, i
             pickled = pickle.dumps(graph)
             data_with_iden.append((num_idens, major_iden, iden_ratio, pre_mass_avg, pickled, cluster_id))
             bytes_count += len(pickled)
-            return
     return
 
 

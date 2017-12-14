@@ -412,19 +412,31 @@ def _add_iden_stat(cluster_id, update=False):
         precursor_mass[i] = entry.precursor_mass
         identification = entry.get_identification()
         if identification and not identification.is_decoy:
-            tpp_string = identification.to_tpp_string()
-            if tpp_string not in idens:
-                idens[tpp_string] = len(idens)
-            ide_arr[i] = idens[tpp_string]
+            string = identification.to_tpp_string() + '/' + str(identification.charge)
+            if string not in idens:
+                idens[string] = len(idens)
+            ide_arr[i] = idens[string]
             prb_arr[i] = identification.probability
     pre_mass_avg = float(np.mean(precursor_mass))
 
     if len(idens) == 0:
         num_idens = 0
         iden_ratio = 0.0
-        clusters_cur.execute('UPDATE "clusters" '
-                             'SET "num_idens"=?, "iden_ratio"=?, "pre_mass_avg"=? '
-                             'WHERE "cluster_id"=?', (num_idens, iden_ratio, pre_mass_avg, cluster_id))
+        # clear original information in case of updating
+        if 'ide' in graph.gp:
+            graph.vp.pop('ide')
+            graph.vp.pop('prb')
+            graph.gp.pop('ide')
+            graph.gp.pop('ord')
+            pickled = pickle.dumps(graph)
+            clusters_cur.execute('UPDATE "clusters" '
+                                 'SET "num_idens"=?, "major_iden"=?, "iden_ratio"=?, "pre_mass_avg"=?, "pickled"=? '
+                                 'WHERE "cluster_id"=?',
+                                 (num_idens, None, iden_ratio, pre_mass_avg, pickled, cluster_id))
+        else:
+            clusters_cur.execute('UPDATE "clusters" '
+                                 'SET "num_idens"=?, "iden_ratio"=?, "pre_mass_avg"=? '
+                                 'WHERE "cluster_id"=?', (num_idens, iden_ratio, pre_mass_avg, cluster_id))
     else:
         num_idens = len(idens)
         graph.vp['ide'] = ide
