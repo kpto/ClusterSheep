@@ -50,6 +50,7 @@ class IdentificationLUT:
         self.file_path = None
         self.mods_pos_data_type = None
         self.mods_mass_data_type = None
+        self.files = None
         self.magic_label = uuid4()
         self.session_label = None
         self.connection = None
@@ -105,6 +106,8 @@ class IdentificationLUT:
         if self.is_connected: return
         self.connection = sqlite3.connect(str(self.file_path))
         self.cursor = self.connection.cursor()
+        self.cursor.execute('SELECT "name" FROM "sqlite_master" WHERE "type" = "table"')
+        self.files = {f[0] for f in self.cursor.fetchall()}
         self.is_connected = True
         return
 
@@ -113,35 +116,13 @@ class IdentificationLUT:
         self.connection.close()
         self.cursor = None
         self.connection = None
+        self.files = None
         self.is_connected = False
         return
 
     def get_identification(self, ms_exp_file_name, native_id):
-        try:
-            query = self.cursor.execute('SELECT * FROM "{}" WHERE "native_id"="{}"'.format(ms_exp_file_name, native_id)).fetchone()
-        except Exception:
-            query = self.cursor.execute('SELECT name FROM sqlite_master WHERE type="table" AND name="{}"'.format(ms_exp_file_name)).fetchone()
-            if query is None:
-                self.cursor.execute('''
-                    CREATE TABLE "{}" (
-                    "native_id" INTEGER UNIQUE,
-                    "peptide" TEXT,
-                    "charge" INTEGER,
-                    "probability" REAL,
-                    "source" TEXT,
-                    "is_decoy" INTEGER,
-                    "prev_aa" TEXT,
-                    "next_aa" TEXT,
-                    "mods_pos" BLOB,
-                    "mods_mass" BLOB,
-                    "nterm_mod" TEXT,
-                    "cterm_mod" TEXT,
-                    "iden_file_id" INTEGER,
-                    "l_offset" INTEGER,
-                    "r_offset" INTEGER
-                    )'''.format(ms_exp_file_name))
-                return query
-            else: raise
+        if ms_exp_file_name not in self.files: return None
+        query = self.cursor.execute('SELECT * FROM "{}" WHERE "native_id"="{}"'.format(ms_exp_file_name, native_id)).fetchone()
         if query is None: return None
         identification = Identification()
         identification.peptide = query[1]

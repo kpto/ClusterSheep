@@ -25,6 +25,7 @@ import time
 import ctypes
 import sys
 import sqlite3
+import math
 
 from envr.session import get_session
 from prcs.parallel.logging_setup import logging_setup
@@ -60,6 +61,7 @@ def enrich_clusters(update=False, num_of_threads=os.cpu_count()):
     log_lock = mp.Lock()
     count_lock = mp.Lock()
     read_lock = mp.Lock()
+    iden_read_lock = mp.Lock()
     merge_lock = mp.Lock()
     exit_signal = mp.Value(ctypes.c_bool, False)
     finish_count = mp.Value(ctypes.c_uint64, 1)
@@ -69,9 +71,12 @@ def enrich_clusters(update=False, num_of_threads=os.cpu_count()):
     session.clusters.disconnect()
     session.iden_lut.disconnect()
 
+    chunk_size = math.ceil(num_clusters / num_of_threads)
+    ranges = [(start, min(num_clusters, start+chunk_size)) for start in range(0, num_clusters, chunk_size)]
+    num_of_threads = num_of_threads if len(ranges) == num_of_threads else len(ranges)
     for pid in range(num_of_threads):
-        processes.append(mp.Process(target=_worker, args=(pid, update, num_clusters, finish_count, log_lock,
-                                                          count_lock, read_lock, merge_lock, exit_signal)))
+        processes.append(mp.Process(target=_worker, args=(pid, update, ranges[pid], finish_count, log_lock,
+                                                          count_lock, read_lock, iden_read_lock, merge_lock, exit_signal)))
     reporter = Thread(target=_reporter, args=(finish_count, num_clusters, log_lock, exit_signal))
 
     logging.info('......Start cluster enrichment with {} subprocesses......'.format(num_of_threads))
@@ -108,7 +113,7 @@ def enrich_clusters(update=False, num_of_threads=os.cpu_count()):
 
     logging.info('......Finish cluster enrichment......')
 
-    logging.debug('Reconnecting clusters  and identification lookup table file')
+    logging.debug('Reconnecting clusters and identification lookup table file')
     session.clusters.connect()
     session.iden_lut.connect()
     return
@@ -136,15 +141,24 @@ def _reporter(finish_count, num_clusters, log_lock, exit_signal):
     return
 
 
-def _worker(pid, update, num_clusters, finish_count, log_lock, count_lock, read_lock, merge_lock, exit_signal):
+def _worker(pid, update, range_, finish_count, log_lock, count_lock, read_lock, iden_read_lock, merge_lock, exit_signal):
     try:
         logging_setup()
         with log_lock:
             logging.debug('Cluster enrichment subprocess {} started.'.format(pid))
+            logging.debug('Received range: {}'.format(range_))
 
         clusters_conn = sqlite3.connect(str(session.clusters.file_path))
         clusters_cur = clusters_conn.cursor()
         session.iden_lut.connect()
+        session.iden_lut.cursor.execute('BEGIN TRANSACTION')
+        with read_lock:
+            clusters_cur.execute('SELECT "cluster_id", "num_idens", "pickled" FROM "clusters" ORDER BY "rowid" LIMIT ? OFFSET ?',
+                                 (range_[1] - range_[0], range_[0]))
+
+        bytes_count = 0
+        data_no_iden = []
+        data_with_iden = []
 
         while True:
             if exit_signal.value:
@@ -152,11 +166,22 @@ def _worker(pid, update, num_clusters, finish_count, log_lock, count_lock, read_
                     logging.debug('Subprocess {}: Received exit signal, exits now.'.format(pid))
                 break
 
+            with read_lock:
+                cluster = clusters_cur.fetchone()
+            if cluster is None:
+                _push(pid, clusters_conn, clusters_cur, data_no_iden, data_with_iden, log_lock, merge_lock)
+                break
+
+            _add_iden_stat(cluster, data_no_iden, data_with_iden, bytes_count, update, iden_read_lock)
+
             with count_lock:
-                cluster_id = finish_count.value
-                if cluster_id > num_clusters: break
                 finish_count.value += 1
-            _add_iden_stat(pid, clusters_conn, clusters_cur, cluster_id, update, log_lock, read_lock, merge_lock)
+
+            if bytes_count >= GM_BUFFER_SIZE:
+                _push(pid, clusters_conn, clusters_cur, data_no_iden, data_with_iden, log_lock, merge_lock)
+                data_no_iden.clear()
+                data_with_iden.clear()
+                bytes_count = 0
 
         clusters_conn.close()
         session.iden_lut.disconnect()
@@ -178,16 +203,8 @@ def _worker(pid, update, num_clusters, finish_count, log_lock, count_lock, read_
     return
 
 
-def _add_iden_stat(pid, clusters_conn, clusters_cur, cluster_id, update, log_lock, read_lock, merge_lock):
-    with read_lock:
-        query = clusters_cur.execute('SELECT "num_idens", "pickled" FROM "clusters" WHERE "cluster_id"=?',
-                                     (cluster_id,)).fetchone()
-    if not query:
-        wrn_msg = 'Subprocess {}: Cluster with id "{}" does not exist.'.format(pid, cluster_id)
-        with log_lock:
-            logging.warning(wrn_msg)
-        return
-    num_idens, pickled = query
+def _add_iden_stat(cluster, data_no_iden, data_with_iden, bytes_count, update, iden_read_lock):
+    cluster_id, num_idens, pickled = cluster
     if update or not num_idens:
         graph = pickle.loads(pickled)
         num_vertices = graph.num_vertices()
@@ -202,24 +219,30 @@ def _add_iden_stat(pid, clusters_conn, clusters_cur, cluster_id, update, log_loc
         for i in range(num_vertices):
             entry = session.internal_index[int(iid_arr[i])]
             precursor_mass[i] = entry.precursor_mass
-            with read_lock:
+            with iden_read_lock:
                 identification = entry.get_identification()
             if identification and not identification.is_decoy:
-                tpp_string = identification.to_tpp_string()
-                if tpp_string not in idens:
-                    idens[tpp_string] = len(idens)
-                ide_arr[i] = idens[tpp_string]
+                string = identification.to_tpp_string() + '/' + str(identification.charge)
+                if string not in idens:
+                    idens[string] = len(idens)
+                ide_arr[i] = idens[string]
                 prb_arr[i] = identification.probability
         pre_mass_avg = float(np.mean(precursor_mass))
 
         if len(idens) == 0:
             num_idens = 0
             iden_ratio = 0.0
-            with merge_lock:
-                clusters_cur.execute('UPDATE "clusters" '
-                                     'SET "num_idens"=?, "iden_ratio"=?, "pre_mass_avg"=? '
-                                     'WHERE "cluster_id"=?', (num_idens, iden_ratio, pre_mass_avg, cluster_id))
-                clusters_conn.commit()
+            # clear original information in case of updating
+            if 'ide' in graph.vp:
+                graph.vp.pop('ide')
+                graph.vp.pop('prb')
+                graph.gp.pop('ide')
+                graph.gp.pop('ord')
+                pickled = pickle.dumps(graph)
+                data_with_iden.append((num_idens, None, iden_ratio, pre_mass_avg, pickled, cluster_id))
+            else:
+                data_no_iden.append((num_idens, iden_ratio, pre_mass_avg, cluster_id))
+            return
         else:
             num_idens = len(idens)
             graph.vp['ide'] = ide
@@ -242,12 +265,27 @@ def _add_iden_stat(pid, clusters_conn, clusters_cur, cluster_id, update, log_loc
             major_iden = idens[iden_id[0]]
             iden_ratio = (num_vertices - num_uniden) / num_vertices
             pickled = pickle.dumps(graph)
-            with merge_lock:
-                clusters_cur.execute('UPDATE "clusters" '
-                                     'SET "num_idens"=?, "major_iden"=?, "iden_ratio"=?, "pre_mass_avg"=?, "pickled"=? '
-                                     'WHERE "cluster_id"=?',
-                                     (num_idens, major_iden, iden_ratio, pre_mass_avg, pickled, cluster_id))
-                clusters_conn.commit()
+            data_with_iden.append((num_idens, major_iden, iden_ratio, pre_mass_avg, pickled, cluster_id))
+            bytes_count += len(pickled)
+            return
+    return
+
+
+def _push(pid, conn, cur, data_no_iden, data_with_iden, log_lock, merge_lock):
+    if len(data_no_iden) + len(data_with_iden) == 0: return
+    with log_lock:
+        logging.debug('Subprocess {}: Pushing {} clusters'.format(pid, len(data_no_iden) + len(data_with_iden)))
+    with merge_lock:
+        cur.execute('BEGIN TRANSACTION')
+        if len(data_no_iden) > 0:
+            cur.executemany('UPDATE "clusters" '
+                            'SET "num_idens"=?, "iden_ratio"=?, "pre_mass_avg"=? '
+                            'WHERE "cluster_id"=?', data_no_iden)
+        if len(data_with_iden) > 0:
+            cur.executemany('UPDATE "clusters" '
+                            'SET "num_idens"=?, "major_iden"=?, "iden_ratio"=?, "pre_mass_avg"=?, "pickled"=? '
+                            'WHERE "cluster_id"=?', data_with_iden)
+        conn.commit()
     return
 
 

@@ -83,6 +83,8 @@ def interactive_console(globals_, banner=None, pre_run=None, true_exit=False):
         pre_run = [
             'import misc',
             'import sys',
+            'import os',
+            'sys.path.append(os.getcwd())',
             'misc.global_vars = globals()',
             'from misc import ipython',
             'import numpy as np',
