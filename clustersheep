@@ -101,6 +101,7 @@ try:
 
     if not session.config.rt_finished.value:
         checkpoint('Rank Transformation')
+        session.mount_internal_index()
         from prcs.parallel.rank_transformation import rank_transform
         rank_transform()
     else:
@@ -122,10 +123,13 @@ try:
 
         if not session.config.cg_finished.value:
             checkpoint('Clustering')
+            session.mount_internal_index()
+            session.mount_ranked_spectra()
             from prcs.parallel.clustering import clustering
             clustering()
         if not session.config.cr_finished.value:
             checkpoint('Cluster Refinement')
+            session.mount_clusters()
             from prcs.parallel.cluster_refinement import refine_cluster
             refine_cluster()
         if session.flags.no_saving:
@@ -134,9 +138,11 @@ try:
 
         if session.flags.no_saving:
             checkpoint('Cluster Enrichment')
+            session.mount_clusters()
             from prcs.parallel.cluster_enrichment import enrich_clusters
             enrich_clusters(True, session.config.gr_num_of_threads.value)
             checkpoint('Cluster Export')
+            session.mount_clusters()
             from prcs.parallel.cluster_export import export_cluster
             export_cluster(Path.cwd().joinpath(session.name + '_exported_clusters'),
                            session.config.gr_num_of_threads.value)
@@ -152,6 +158,8 @@ try:
 
     if session.flags.stay_interactive:
         from prcs.cluster_viewing import cluster_viewer
+        session.mount_internal_index()
+        session.mount_clusters()
         cluster_viewer(globals())
         session.save_session()
 
