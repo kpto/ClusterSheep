@@ -94,10 +94,10 @@ def import_identification(file, log_lock=Lock()):
 
                 nterm_mod = re.search(b'mod_nterm_mass="([^"]+)', block)
                 if nterm_mod:
-                    new_iden.nterm_mod = nterm_mod.groups()[0].decode()
+                    new_iden.nterm_mod = float(nterm_mod.groups()[0])
                 cterm_mod = re.search(b'mod_cterm_mass="([^"]+)', block)
                 if cterm_mod:
-                    new_iden.cterm_mod = cterm_mod.groups()[0].decode()
+                    new_iden.cterm_mod = float(cterm_mod.groups()[0])
                 for mod in re.findall(b'<mod_aminoacid_mass.+>', block):
                     temp_mods_pos.append(int(re.search(b'position="([^"]+)', mod).groups()[0]))
                     temp_mods_mass.append(float(re.search(b'mass="([^"]+)', mod).groups()[0]))

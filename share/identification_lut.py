@@ -188,8 +188,8 @@ class Identification:
             pos += offset
             full_string = full_string[:pos] + '[{}]' + full_string[pos:]
         full_string = full_string.format(*mods_mass.astype(np.int32))
-        if self.nterm_mod: full_string = 'n[' + str(int(float(self.nterm_mod))) + ']' + full_string
-        if self.cterm_mod: full_string += 'c[' + str(int(float(self.cterm_mod))) + ']'
+        if self.nterm_mod: full_string = 'n[' + str(int(self.nterm_mod)) + ']' + full_string
+        if self.cterm_mod: full_string += 'c[' + str(int(self.cterm_mod)) + ']'
         return full_string
 
     def to_string(self, tpp_string=None):
