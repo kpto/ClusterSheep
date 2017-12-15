@@ -52,7 +52,11 @@ def ipython():
     c.TerminalIPythonApp.display_banner = False
     c.InteractiveShell.confirm_exit = False
 
+    logging.info('Entering IPython.')
+    wrn_msg = 'Codes executed inside IPython cannot be recorded.'
+    logging.warning(wrn_msg)
     IPython.start_ipython(argv=[], user_ns=global_vars, config=c)
+    logging.info('Left IPython.')
 
     sys.ps1 = 'python >>> '
     sys.ps2 = 'python ... '
