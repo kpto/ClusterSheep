@@ -295,13 +295,6 @@ def _worker(pid, q, temp_storage, valid_ms2_count, total_ms2_count, finish_count
                 with log_lock:
                     logging.debug('Subprocess {}: Received exit signal, exits now.'.format(pid))
                 break
-            if input_limit > 0 and valid_ms2_count.value >= input_limit:
-                with log_lock:
-                    logging.debug('Subprocess {}: Exceeded input limit, purges queue and exits now.'.format(pid))
-                item = 0
-                while item is not None:
-                    item = q.get()
-                break
             item = q.get()
             if item:
                 file_id, path = item
@@ -322,6 +315,14 @@ def _worker(pid, q, temp_storage, valid_ms2_count, total_ms2_count, finish_count
                 if valid != 0:
                     index.file_id = np.full(len(index.file_id), file_id, dtype=II_FILE_ID_DATA_TYPE)
                     with merge_lock:
+                        if input_limit > 0 and valid_ms2_count.value >= input_limit:
+                            with log_lock:
+                                logging.debug(
+                                    'Subprocess {}: Exceeded input limit, purges queue and exits now.'.format(pid))
+                            item = 0
+                            while item is not None:
+                                item = q.get()
+                            break
                         index.internal_id += valid_ms2_count.value
                         valid_ms2_count.value += valid
                         total_ms2_count.value += total

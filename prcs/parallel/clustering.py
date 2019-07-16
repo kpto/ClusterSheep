@@ -138,6 +138,7 @@ def clustering():
         err_msg = '\nClustering produced no edge.'
         logging.error(err_msg)
         raise Exception(err_msg)
+    logging.info('Formed {} edges.'.format(total_edge_count.value))
     logging.info('......Finish similarity computation, start graph formation......')
 
     try:

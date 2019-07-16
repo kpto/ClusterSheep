@@ -78,7 +78,7 @@ def clustering_gpu(dispatcher, temp_storage):
 
     num_of_threads = processes_per_device * len(gpus)
     for pid in range(num_of_threads):
-        processes.append(mp.Process(target=_worker, args=(pid, pid%len(gpus), dispatcher, temp_storage, total_edge_count,
+        processes.append(mp.Process(target=_worker, args=(pid, gpus[pid%len(gpus)], dispatcher, temp_storage, total_edge_count,
                                                           log_lock, merge_lock, exit_signal)))
     reporter = Thread(target=_reporter, args=(dispatcher, math.ceil(len(session.internal_index)/block_dimensions[0]),
                                               log_lock, exit_signal))
@@ -396,7 +396,7 @@ def _get_gpus():
     def get_information(q):
         drv.init()
         count = drv.Device.count()
-        gpus = list(range(count)) if len(gpus_used) == 0 else list(set([d for d in gpus_used if d < count])).sort()
+        gpus = list(range(count)) if len(gpus_used) == 0 else sorted(list(set([d for d in gpus_used if d < count])))
         info = []
         for id_ in gpus:
             d = drv.Device(id_)

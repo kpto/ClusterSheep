@@ -92,10 +92,11 @@ except ImportError:
 # ====BEGIN OF CLASS DEFINITION====
 class _Picked:
 
-    def __init__(self, id_, entry, iden):
+    def __init__(self, id_, entry, iden, type_):
         self.id_ = id_
         self.entry = entry
         self.iden = iden
+        self.type_ = type_
         return
 
     def __str__(self):
@@ -108,16 +109,23 @@ class _Callback:
         self.tagged_top = None
         self.tagged_bottom = None
         self.swap_iden = False
+        self.verificative = True
         return
 
     def __call__(self, graphwidget, g, keyval, picked, pos, vprops, eprops):
         # key = T, tag vertex
         if keyval == 116:
-            entry = session.internal_index[g.vp['iid'][picked]]
+            if 'spc' in g.vp:
+                entry = g.vp['spc'][picked]
+                entry.precursor_charge = 0
+                type_ = 'spectrum'
+            else:
+                entry = session.internal_index[g.vp['iid'][picked]]
+                type_ = 'index'
             identification = entry.get_identification()
             iden_string = identification.to_string() if identification else None
             self.tagged_bottom = self.tagged_top
-            self.tagged_top = _Picked(picked, entry, identification)
+            self.tagged_top = _Picked(picked, entry, identification, type_)
             logging.info('Picked: {}    Tagged pair: {}-{}'.format(picked, self.tagged_top, self.tagged_bottom))
             logging.info('Native id: {}    File: {}'.format(entry.native_id, entry.get_file_path()))
             logging.info('Precursor mass: {}    Charge: {}    Identification: {}'
@@ -128,27 +136,33 @@ class _Callback:
             logging.info('Tags cleared.')
         # key = D, plot spectrum
         if keyval == 100:
-            spec_top = self.tagged_top.entry.get_spectrum()
+            spec_top = self.tagged_top.entry.get_spectrum() if self.tagged_top.type_ == 'index' else self.tagged_top.entry
             if self.tagged_bottom is None:
                 spec_bottom = None
             else:
-                spec_bottom = self.tagged_bottom.entry.get_spectrum()
+                spec_bottom = self.tagged_bottom.entry.get_spectrum() if self.tagged_bottom.type_ == 'index' else self.tagged_bottom.entry
                 logging.info('Verificative ranked dot product: {}'.format(spec_top.verificative_ranked_dp(spec_bottom)))
                 if self.swap_iden:
                     spec_top.override_iden = self.tagged_bottom.iden
                     spec_bottom.override_iden = self.tagged_top.iden
-            spec_top.plot(against=spec_bottom)
+            spec_top.plot(against=spec_bottom, verificative=self.verificative)
         # key = I, swap identification
         if keyval == 105:
             self.swap_iden = False if self.swap_iden else True
             word = 'enabled' if self.swap_iden else 'disabled'
             logging.info('Identification swapping is {}.'.format(word))
+        # key = V, trigger verificative plot
+        if keyval == 118:
+            self.verificative = False if self.verificative else True
+            word = 'enabled' if self.verificative else 'disabled'
+            logging.info('Verificative plotting is {}.'.format(word))
         return
 # ====END OF CLASS DEFINITION====
 
 
 # ====BEGIN OF CODE====
 def cluster_viewer(globals_):
+    _refresh_session()
     if iden_lut:
         iden_lut.connect()
     clusters.connect()

@@ -62,7 +62,7 @@ class Configuration:
         self.rt_finished = ParameterBase(False, bool)
         # clustering general parameters
         self.cg_precursor_tolerance = ParameterBase(1.1, float, range_=(0.0, INF))
-        self.cg_dot_product_threshold = ParameterBase(0.8, float, range_=(0.0, 1.0))
+        self.cg_dot_product_threshold = ParameterBase(0.7, float, range_=(0.0, 1.0))
         self.cg_block_dimensions = ParameterTuple((2048, 2048), int, element_range=(1, INF), size=2)
         self.cg_allocation_size_initial_divisor = ParameterBase(30, int, range_=(1, INF))
         self.cg_finished = ParameterBase(False, bool)

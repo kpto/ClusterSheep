@@ -168,7 +168,7 @@ class Session:
                         f.unlink()
                 else:
                     err_msg = '\nWorking directory contains files with names same as the session name \"{}\".'.format(
-                        session.name)
+                        flags.fork)
                     logging.error(err_msg)
                     raise FileExistsError(err_msg)
 
