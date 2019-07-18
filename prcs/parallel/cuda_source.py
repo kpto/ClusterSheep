@@ -51,6 +51,7 @@ __global__ void compute_dot_product(
         {counter_dtype} *counter,
         {edge_dtype} edge[][2],
         {dot_product_dtype} dot_product[],
+        {pmass_diff_dtype} precursor_mass_difference[],
         {overflowed_dtype} *overflowed
         ) {{
     const {bkdim_dtype} local_location_x = blockDim.x * blockIdx.x + threadIdx.x;
@@ -88,8 +89,10 @@ __global__ void compute_dot_product(
 
     __syncthreads();
 
+    {pmass_diff_dtype} pmass_diff = abs(s_precursor_mass_y[threadIdx.y]-s_precursor_mass_x[threadIdx.x]);
+
     if((local_location_y < block_dimensions[0] && local_location_x < block_dimensions[1]) &&
-       (abs(s_precursor_mass_y[threadIdx.y]-s_precursor_mass_x[threadIdx.x]) <= {pmass_tol})) {{
+       (pmass_diff <= {pmass_tol})) {{
         {dot_product_dtype} dp = 0;
         uint32_t y_ptr = 0;
         uint32_t x_ptr = 0;
@@ -118,6 +121,7 @@ __global__ void compute_dot_product(
                     dot_product[index] = dp;
                     edge[index][0] = global_location_y;
                     edge[index][1] = global_location_x;
+                    precursor_mass_difference[index] = pmass_diff;
                 }}
             }}
         }}
@@ -148,6 +152,7 @@ def get_source_code():
             'counter_dtype': C_DATA_TYPE[CG_COUNTER_DATA_TYPE],
             'edge_dtype': C_DATA_TYPE[CG_EDGE_DATA_TYPE],
             'dot_product_dtype': C_DATA_TYPE[CG_DOT_PRODUCT_DATA_TYPE],
+            'pmass_diff_dtype' : C_DATA_TYPE[CG_PRECURSOR_MASS_DIFFERENCE_DATA_TYPE],
             'overflowed_dtype': C_DATA_TYPE[CG_OVERFLOWED_DATA_TYPE],
             'pmass_tol': precursor_tolerance,
             'dp_tol': dot_product_threshold,

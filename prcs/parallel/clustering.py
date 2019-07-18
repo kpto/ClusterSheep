@@ -139,6 +139,8 @@ def clustering():
         logging.error(err_msg)
         raise Exception(err_msg)
     logging.info('Formed {} edges.'.format(total_edge_count.value))
+    return
+
     logging.info('......Finish similarity computation, start graph formation......')
 
     try:
@@ -174,6 +176,7 @@ def _new_temp_storage():
     temp_storage = temp_storage.resolve()
     temp_storage.joinpath('edg').touch()
     temp_storage.joinpath('dps').touch()
+    temp_storage.joinpath('pmd').touch()
     return temp_storage
 
 

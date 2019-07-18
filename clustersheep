@@ -127,14 +127,14 @@ try:
             session.mount_ranked_spectra()
             from prcs.parallel.clustering import clustering
             clustering()
-        if not session.config.cr_finished.value:
-            checkpoint('Cluster Refinement')
-            session.mount_clusters()
-            from prcs.parallel.cluster_refinement import refine_cluster
-            refine_cluster()
+        # if not session.config.cr_finished.value:
+        #     checkpoint('Cluster Refinement')
+        #     session.mount_clusters()
+        #     from prcs.parallel.cluster_refinement import refine_cluster
+        #     refine_cluster()
         if session.flags.no_saving:
             Path.cwd().joinpath(session.name + FILE_EXTENSION_RANKED_SPECTRA).unlink()
-        session.mount_clusters()
+        # session.mount_clusters()
 
         if session.flags.no_saving:
             checkpoint('Cluster Enrichment')

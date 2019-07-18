@@ -107,14 +107,14 @@ def clustering_gpu(dispatcher, temp_storage):
             if processes[i].is_alive():
                 processes[i].join()
         logging.debug('All processes exited.')
-        _clean_temporary(temp_storage)
+        # _clean_temporary(temp_storage)
         raise
 
     # in case that subprocesses were exited with errors
     if 1 in [p.exitcode for p in processes]:
         err_msg = '\nSubprocesses exited with abnormal exitcode.'
         logging.error(err_msg)
-        _clean_temporary(temp_storage)
+        # _clean_temporary(temp_storage)
         raise mp.ProcessError(err_msg)
     return total_edge_count
 
@@ -154,7 +154,7 @@ def _worker(pid, did, dispatcher, temp_storage, total_edge_count, log_lock, merg
         compiler_option = ['--fmad=true',] if use_fmad else ['--fmad=false',]
         cuda_module = SourceModule(get_source_code(), options=compiler_option)
         cuda_kernel = cuda_module.get_function('compute_dot_product')
-        cuda_kernel.prepare('PPPPPPPPPP')
+        cuda_kernel.prepare('PPPPPPPPPPP')
 
         threads = []
         exit_state = mp.Value(ctypes.c_uint32, 0)
@@ -203,6 +203,7 @@ def _thread(pid, tid, cuda_context, cuda_kernel, dispatcher, temp_storage, total
         ref_block_height, ref_block_width = block_dimensions
         edg_path = Path(temp_storage, 'edg')
         dps_path = Path(temp_storage, 'dps')
+        pmd_path = Path(temp_storage, 'pmd')
         ranked_spectra = session.ranked_spectra
         cuda_stream = drv.Stream()
 
@@ -224,6 +225,7 @@ def _thread(pid, tid, cuda_context, cuda_kernel, dispatcher, temp_storage, total
         plm_counter = drv.pagelocked_empty(1, dtype=CG_COUNTER_DATA_TYPE)
         plm_edge = drv.pagelocked_empty((allocation_size, 2), dtype=CG_EDGE_DATA_TYPE)
         plm_dot_product = drv.pagelocked_empty(allocation_size, dtype=CG_DOT_PRODUCT_DATA_TYPE)
+        plm_precursor_mass_difference = drv.pagelocked_empty(allocation_size, dtype=CG_PRECURSOR_MASS_DIFFERENCE_DATA_TYPE)
         plm_overflowed = drv.pagelocked_empty(1, dtype=CG_OVERFLOWED_DATA_TYPE)
 
         # allocate device memory
@@ -238,6 +240,7 @@ def _thread(pid, tid, cuda_context, cuda_kernel, dispatcher, temp_storage, total
         dvp_counter = drv.mem_alloc_like(plm_counter)
         dvp_edge = drv.mem_alloc_like(plm_edge)
         dvp_dot_product = drv.mem_alloc_like(plm_dot_product)
+        dvp_precursor_mass_difference = drv.mem_alloc_like(plm_precursor_mass_difference)
         dvp_overflowed = drv.mem_alloc_like(plm_overflowed)
 
         with log_lock:
@@ -284,13 +287,17 @@ def _thread(pid, tid, cuda_context, cuda_kernel, dispatcher, temp_storage, total
                     # reallocate host pagelocked memory
                     del plm_edge
                     del plm_dot_product
+                    del plm_precursor_mass_difference
                     plm_edge = drv.pagelocked_empty((allocation_size, 2), dtype=CG_EDGE_DATA_TYPE)
                     plm_dot_product = drv.pagelocked_empty(allocation_size, dtype=CG_DOT_PRODUCT_DATA_TYPE)
+                    plm_precursor_mass_difference = drv.pagelocked_empty(allocation_size, dtype=CG_PRECURSOR_MASS_DIFFERENCE_DATA_TYPE)
                     # reallocate device memory
                     del dvp_edge
                     del dvp_dot_product
+                    del dvp_precursor_mass_difference
                     dvp_edge = drv.mem_alloc_like(plm_edge)
                     dvp_dot_product = drv.mem_alloc_like(plm_dot_product)
+                    dvp_precursor_mass_difference = drv.mem_alloc_like(plm_precursor_mass_difference)
                     with log_lock:
                         logging.debug('\033[92mSubprocess {} thread {}: Reset memory allocation size divisor to {}.\033[0m'.
                                       format(pid, tid, allocation_size_divisor))
@@ -317,6 +324,7 @@ def _thread(pid, tid, cuda_context, cuda_kernel, dispatcher, temp_storage, total
                                                     dvp_counter,
                                                     dvp_edge,
                                                     dvp_dot_product,
+                                                    dvp_precursor_mass_difference,
                                                     dvp_overflowed)
 
                     # transfer computation result from device to host
@@ -324,6 +332,7 @@ def _thread(pid, tid, cuda_context, cuda_kernel, dispatcher, temp_storage, total
                     drv.memcpy_dtoh_async(plm_counter, dvp_counter, cuda_stream)
                     drv.memcpy_dtoh_async(plm_overflowed, dvp_overflowed, cuda_stream)
                     drv.memcpy_dtoh_async(plm_dot_product, dvp_dot_product, cuda_stream)
+                    drv.memcpy_dtoh_async(plm_precursor_mass_difference, dvp_precursor_mass_difference, cuda_stream)
                     cuda_stream.synchronize()
 
                     if plm_overflowed[0]:
@@ -342,13 +351,17 @@ def _thread(pid, tid, cuda_context, cuda_kernel, dispatcher, temp_storage, total
                         # reallocate host pagelocked memory
                         del plm_edge
                         del plm_dot_product
+                        del plm_precursor_mass_difference
                         plm_edge = drv.pagelocked_empty((allocation_size, 2), dtype=CG_EDGE_DATA_TYPE)
                         plm_dot_product = drv.pagelocked_empty(allocation_size, dtype=CG_DOT_PRODUCT_DATA_TYPE)
+                        plm_precursor_mass_difference = drv.pagelocked_empty(allocation_size, dtype=CG_PRECURSOR_MASS_DIFFERENCE_DATA_TYPE)
                         # reallocate device memory
                         del dvp_edge
                         del dvp_dot_product
+                        del dvp_precursor_mass_difference
                         dvp_edge = drv.mem_alloc_like(plm_edge)
                         dvp_dot_product = drv.mem_alloc_like(plm_dot_product)
+                        dvp_precursor_mass_difference = drv.mem_alloc_like(plm_precursor_mass_difference)
                         reallocated = True
                         continue
                     else:
@@ -362,8 +375,10 @@ def _thread(pid, tid, cuda_context, cuda_kernel, dispatcher, temp_storage, total
                         total_edge_count.value += edge_list_size
                         edg = np.memmap(str(edg_path), dtype=CG_EDGE_DATA_TYPE, mode='r+', shape=(total_edge_count.value, 2))
                         dps = np.memmap(str(dps_path), dtype=CG_DOT_PRODUCT_DATA_TYPE, mode='r+', shape=total_edge_count.value)
+                        pmd = np.memmap(str(pmd_path), dtype=CG_PRECURSOR_MASS_DIFFERENCE_DATA_TYPE, mode='r+', shape=total_edge_count.value)
                         edg[-edge_list_size:] = plm_edge[:edge_list_size]
                         dps[-edge_list_size:] = plm_dot_product[:edge_list_size]
+                        pmd[-edge_list_size:] = plm_precursor_mass_difference[:edge_list_size]
 
             except Exception:
                 err_msg = '\nSubprocess {} thread {}: Failed to clustering block (y:{}->{}, x:{}->{}).' \
