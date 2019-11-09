@@ -124,6 +124,7 @@ def peptide_entropy(full_clusters_set):
 def compute_external_indices():
     import math
 
+    global identifications_dict
     if identifications_dict is None:
         logging.info("Converting identification sqlite database to Python dictionary...")
         identifications_dict = _get_all_identifications_python_dict()
