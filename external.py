@@ -39,7 +39,6 @@ try:
     iid = session.internal_index
     ide = session.iden_lut
     rks = session.ranked_spectra
-    edg = session.edge_list
 
     identifications_dict = None
 except ImportError:
