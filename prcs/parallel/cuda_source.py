@@ -109,7 +109,7 @@ __global__ void compute_dot_product(
             }}
         }}
         
-        dp = (-0.5275 * pmass_diff) + (4.5572 * dp) - 1.8332
+        dp = (-0.5275 * pmass_diff) + (4.5572 * dp) - 1.8332;
 
         if(dp > 0) {{
             {edge_dtype} global_location_y = local_location_y + offset[0];
