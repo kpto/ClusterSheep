@@ -88,8 +88,11 @@ __global__ void compute_dot_product(
 
     __syncthreads();
 
+
+    {pmass_dtype} pmass_diff = abs(s_precursor_mass_y[threadIdx.y]-s_precursor_mass_x[threadIdx.x]);
+    
     if((local_location_y < block_dimensions[0] && local_location_x < block_dimensions[1]) &&
-       (abs(s_precursor_mass_y[threadIdx.y]-s_precursor_mass_x[threadIdx.x]) <= {pmass_tol})) {{
+       (pmass_diff <= {pmass_tol})) {{
         {dot_product_dtype} dp = 0;
         uint32_t y_ptr = 0;
         uint32_t x_ptr = 0;
@@ -105,8 +108,10 @@ __global__ void compute_dot_product(
                 ++x_ptr;
             }}
         }}
+        
+        dp = (-0.5275 * pmass_diff) + (4.5572 * dp) - 1.8332
 
-        if(dp > {dp_tol}) {{
+        if(dp > 0) {{
             {edge_dtype} global_location_y = local_location_y + offset[0];
             {edge_dtype} global_location_x = local_location_x + offset[1];
             if(global_location_x > global_location_y) {{

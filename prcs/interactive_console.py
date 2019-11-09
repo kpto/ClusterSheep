@@ -84,6 +84,7 @@ def interactive_console(globals_, banner=None, pre_run=None, true_exit=False):
             'import misc',
             'import sys',
             'import os',
+            'import external',
             'sys.path.append(os.getcwd())',
             'misc.global_vars = globals()',
             'from misc import ipython',
