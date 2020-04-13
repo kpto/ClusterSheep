@@ -27,9 +27,9 @@ import sys
 import sqlite3
 import math
 
-from envr.session import get_session
-from prcs.parallel.logging_setup import logging_setup
-from property import *
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.prcs.parallel.logging_setup import logging_setup
+from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
 

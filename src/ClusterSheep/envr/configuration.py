@@ -20,7 +20,7 @@ Desciption of this module:
 from pathlib import Path
 import os
 
-from envr.parameter_base import *
+from ClusterSheep.envr.parameter_base import *
 # ====END OF MODULE IMPORT====
 
 

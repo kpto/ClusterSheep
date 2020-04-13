@@ -16,8 +16,8 @@ Desciption of this module:
 """
 
 # ====BEGIN OF MODULE IMPORT====
-from property import *
-from prcs.template import create_template_file
+from ClusterSheep.property import *
+from ClusterSheep.prcs.template import create_template_file
 # ====END OF MODULE IMPORT====
 
 

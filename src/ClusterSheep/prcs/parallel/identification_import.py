@@ -27,10 +27,10 @@ import ctypes
 import pickle
 from uuid import uuid4
 
-from envr.session import get_session
-from prcs.parallel.logging_setup import logging_setup
-import reader.pepxml as pepxml
-from property import *
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.prcs.parallel.logging_setup import logging_setup
+import ClusterSheep.reader.pepxml as pepxml
+from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
 

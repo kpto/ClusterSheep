@@ -1,20 +1,4 @@
 # -*- coding: utf-8 -*-
-"""
-Created on 06:48:11 09/09/2017
-
-Author: Paul TO, Ka Po
-Contact: kpto@ust.hk
-Institude: Hong Kong University of Science and Technology
-Department: Division of Biomedical Engineering
-
-Supervisor: Prof. Henry LAM, H. N.
-Contact: kehlam@ust.hk
-Institude: Hong Kong University of Science and Technology
-Department: Department of Chemical and Biomolecular Engineering
-
-Desciption of this module:
-"""
-
 # ====BEGIN OF MODULE IMPORT====
 # ====END OF MODULE IMPORT====
 

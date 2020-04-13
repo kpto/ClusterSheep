@@ -22,10 +22,10 @@ import matplotlib.pyplot as plt
 import pyopenms as om
 from pprint import pformat
 
-from envr.session import get_session
-from share.internal_index import Entry
-import reader.mzxml as mzxml
-import reader.mzml as mzml
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.share.internal_index import Entry
+import ClusterSheep.reader.mzxml as mzxml
+import ClusterSheep.reader.mzml as mzml
 # ====END OF MODULE IMPORT====
 
 

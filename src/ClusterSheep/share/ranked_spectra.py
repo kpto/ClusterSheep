@@ -22,9 +22,9 @@ import pickle
 from pathlib import Path
 from pprint import pformat
 
-from envr.session import get_session
-from share.misc import extract_header
-from property import *
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.share.misc import extract_header
+from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
 

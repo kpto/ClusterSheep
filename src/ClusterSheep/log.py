@@ -21,8 +21,8 @@ import sys
 from datetime import datetime
 from pathlib import Path
 
-import envr.session
-from property import *
+import ClusterSheep.envr.session
+from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
 

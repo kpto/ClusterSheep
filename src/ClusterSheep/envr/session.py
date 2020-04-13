@@ -25,8 +25,8 @@ from uuid import uuid4
 from pprint import pformat
 import os
 
-from envr.configuration import Configuration
-from property import *
+from ClusterSheep.envr.configuration import Configuration
+from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
 

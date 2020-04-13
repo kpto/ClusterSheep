@@ -25,9 +25,9 @@ import os
 from ast import literal_eval
 import readline
 
-from envr.session import get_session
-from share.misc import generate_colors
-from property import *
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.share.misc import generate_colors
+from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
 
@@ -189,7 +189,7 @@ def cluster_viewer(globals_):
             print('\n')
             break
         elif session.flags.dev_mode and command == 'python':
-            from prcs.interactive_console import interactive_console
+            from ClusterSheep.prcs.interactive_console import interactive_console
             _write_history()
             interactive_console(globals_)
             _read_history()
@@ -321,7 +321,7 @@ def _enrich_cluster(string):
         logging.info('Invalid number of threads.')
         return
 
-    from prcs.parallel.cluster_enrichment import enrich_clusters
+    from ClusterSheep.prcs.parallel.cluster_enrichment import enrich_clusters
     enrich_clusters(update, num_of_threads)
     _refresh_session()
     return
@@ -371,7 +371,7 @@ def _export(string):
         _add_iden_stat(cluster_id)
         _export_cluster(cluster_id, file)
     else:
-        from prcs.parallel.cluster_export import export_cluster
+        from ClusterSheep.prcs.parallel.cluster_export import export_cluster
         export_cluster(file, num_of_threads)
         _refresh_session()
     return

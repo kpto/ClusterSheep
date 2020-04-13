@@ -23,13 +23,13 @@ import ctypes
 from uuid import uuid4
 import math
 
-from envr.session import get_session
-from prcs.parallel.clustering_gpu import clustering_gpu
-from prcs.parallel.clustering_cpu import clustering_cpu
-from prcs.parallel.find_cluster import _union_find, _find_parent, _find_belonging, _argsort
-from prcs.parallel.graph_making import make_graphs
-from share.misc import _clean_temporary
-from property import *
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.prcs.parallel.clustering_gpu import clustering_gpu
+from ClusterSheep.prcs.parallel.clustering_cpu import clustering_cpu
+from ClusterSheep.prcs.parallel.find_cluster import _union_find, _find_parent, _find_belonging, _argsort
+from ClusterSheep.prcs.parallel.graph_making import make_graphs
+from ClusterSheep.share.misc import _clean_temporary
+from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
 

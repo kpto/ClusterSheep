@@ -18,8 +18,8 @@ Desciption of this module:
 # ====BEGIN OF MODULE IMPORT====
 import logging
 
-from envr.session import get_session
-from property import *
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
 

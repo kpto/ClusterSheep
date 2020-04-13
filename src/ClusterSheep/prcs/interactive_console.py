@@ -17,14 +17,14 @@ Desciption of this module:
 
 # ====BEGIN OF MODULE IMPORT====
 import logging
-from share import code
 import rlcompleter
 import readline
 from pathlib import Path
 import sys
 
-from envr.session import get_session
-from property import *
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.property import *
+from ClusterSheep.share import code
 # ====END OF MODULE IMPORT====
 
 

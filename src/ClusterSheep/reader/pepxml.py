@@ -21,9 +21,9 @@ from threading import Lock
 import mmap
 import re
 
-from envr.session import get_session
-from share.identification_lut import Identification
-from property import *
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.share.identification_lut import Identification
+from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
 

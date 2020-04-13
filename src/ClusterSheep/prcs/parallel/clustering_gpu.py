@@ -27,11 +27,11 @@ import math
 import time
 import ctypes
 
-from envr.session import get_session
-from property import *
-from prcs.parallel.logging_setup import logging_setup
-from prcs.parallel.cuda_source import get_source_code
-from share.misc import _clean_temporary
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.property import *
+from ClusterSheep.prcs.parallel.logging_setup import logging_setup
+from ClusterSheep.prcs.parallel.cuda_source import get_source_code
+from ClusterSheep.share.misc import _clean_temporary
 # ====END OF MODULE IMPORT====
 
 

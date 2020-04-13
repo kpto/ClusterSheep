@@ -18,7 +18,7 @@ Desciption of this module:
 # ====BEGIN OF MODULE IMPORT====
 import logging
 
-from envr.session import get_session
+from ClusterSheep.envr.session import get_session
 # ====END OF MODULE IMPORT====
 
 

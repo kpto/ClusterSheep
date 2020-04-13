@@ -23,8 +23,8 @@ from pathlib import Path
 import sqlite3
 from pprint import pformat
 
-from envr.session import get_session
-from property import *
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
 

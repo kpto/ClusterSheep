@@ -23,9 +23,9 @@ import re
 import zlib
 import base64
 
-from envr.session import get_session
-from share.internal_index import Index
-from property import *
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.share.internal_index import Index
+from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
 

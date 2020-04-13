@@ -18,7 +18,7 @@ Desciption of this module:
 # ====BEGIN OF MODULE IMPORT====
 import logging
 
-from envr.session import get_session
+from ClusterSheep.envr.session import get_session
 # ====END OF MODULE IMPORT====
 
 
@@ -91,7 +91,7 @@ def mount_edge_list(path):
 
 
 def dp_spectrum_pair(idx_a, idx_b):
-    from share.spectrum import Spectrum
+    from ClusterSheep.share.spectrum import Spectrum
     index = session.internal_index
     s_a = Spectrum(index[idx_a]).clip(copy=False).remove_precursor(copy=False).rank_transform(copy=False)
     s_b = Spectrum(index[idx_b]).clip(copy=False).remove_precursor(copy=False).rank_transform(copy=False)

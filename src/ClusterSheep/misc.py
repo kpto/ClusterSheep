@@ -20,7 +20,7 @@ Desciption of this module:
 import logging
 import sys
 
-from envr.session import get_session
+from ClusterSheep.envr.session import get_session
 # ====END OF MODULE IMPORT====
 
 

@@ -27,12 +27,12 @@ import pickle
 import sys
 import ctypes
 
-from envr.session import get_session
-from prcs.parallel.logging_setup import logging_setup
-from prcs.parallel.binning import _binning
-from property import *
-import reader.mzxml as mzxml
-import reader.mzml as mzml
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.prcs.parallel.logging_setup import logging_setup
+from ClusterSheep.prcs.parallel.binning import _binning
+from ClusterSheep.property import *
+import ClusterSheep.reader.mzxml as mzxml
+import ClusterSheep.reader.mzml as mzml
 # ====END OF MODULE IMPORT====
 
 

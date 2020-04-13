@@ -26,8 +26,8 @@ import ctypes
 import sys
 import sqlite3
 
-from envr.session import get_session
-from prcs.parallel.logging_setup import logging_setup
+from ClusterSheep.envr.session import get_session
+from ClusterSheep.prcs.parallel.logging_setup import logging_setup
 # ====END OF MODULE IMPORT====
 
 
