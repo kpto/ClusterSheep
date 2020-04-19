@@ -29,9 +29,9 @@ from Cython.Build import cythonize
 # ====BEGIN OF GLOBAL VARIABLE DECLARATION====
 here = os.path.abspath(os.path.dirname(__file__));
 
-extensions = [Extension('ClusterSheep.prcs.parallel.find_cluster', [os.path.join(here, 'src/ClusterSheep/prcs/parallel/find_cluster.pyx')]),
-              Extension('ClusterSheep.prcs.parallel.binning', [os.path.join(here, 'src/ClusterSheep/prcs/parallel/find_cluster.pyx')]),
-              Extension('ClusterSheep.prcs.parallel.cpu_kernel', [os.path.join(here, 'src/ClusterSheep/prcs/parallel/find_cluster.pyx')])]
+extensions = [Extension('ClusterSheep.prcs.parallel.find_cluster', [os.path.join(here, 'lib/find_cluster.pyx')]),
+              Extension('ClusterSheep.prcs.parallel.binning', [os.path.join(here, 'lib/binning.pyx')]),
+              Extension('ClusterSheep.prcs.parallel.cpu_kernel', [os.path.join(here, 'lib/cpu_kernel.pyx')])]
 # ====END OF GLOBAL VARIABLE DECLARATION====
 
 
@@ -44,7 +44,7 @@ def get_version(path):
     with open(path) as fp:
         for line in fp.readlines():
             if line.startswith('VERSION'):
-                return line.split(line.split('=')[1].strip().strip("'"))[1]
+                return line.split('=')[1].strip().strip("'")
 
 
 setup(
