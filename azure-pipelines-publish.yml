@@ -31,7 +31,5 @@ steps:
   displayName: 'Twine authenticate'
 
 - script: |
-    cat $(PYPIRC_PATH)
-    echo ====****
-    python -m twine upload -r "ClusterSheep" --config-file $(PYPIRC_PATH) dist/*.whl
+    python -m twine upload --repository testpypi --config-file $(PYPIRC_PATH) dist/*.whl
   displayName: 'Upload to PyPI'
