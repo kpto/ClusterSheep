@@ -17,6 +17,7 @@ Desciption of this module:
 
 # ====BEGIN OF MODULE IMPORT====
 import os
+import numpy
 from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 # ====END OF MODULE IMPORT====
@@ -55,6 +56,7 @@ setup(
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
     ext_modules=cythonize(extensions),
+    include_dirs=[numpy.get_include()],
     entry_points={'console_scripts': ['clustersheep=ClusterSheep.main:main']}
 )
 # ====END OF CODE====
