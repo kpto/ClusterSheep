@@ -21,7 +21,7 @@ steps:
 
 - script: |
     python -m pip install --upgrade pip
-    apt-get install python3-numpy
+    sudo apt-get install python3-numpy
     pip install Cython
     pip install -e .
   displayName: 'Install packages and ClusterSheep'
