@@ -24,3 +24,12 @@ steps:
 - script: |
     python setup.py sdist bdist_wheel
   displayName: 'Build wheel'
+
+- task: TwineAuthenticate@1
+  inputs:
+    pythonUploadServiceConnection: 'PyPi-ClusterSheep'
+  displayName: 'Twine authenticate'
+
+- script: |
+    cat $(PYPIRC_PATH)
+    python -m twine upload -r "ClusterSheep" --config-file $(PYPIRC_PATH) dist/*.whl
