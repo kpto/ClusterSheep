@@ -21,9 +21,10 @@ steps:
 
 - script: |
     python -m pip install --upgrade pip
-    pip install Cython numpy
+    apt-get install python3-numpy
+    pip install Cython
     pip install -e .
-  displayName: 'Install Cython'
+  displayName: 'Install packages and ClusterSheep'
 
 - script: |
     pip install pytest pytest-azurepipelines
