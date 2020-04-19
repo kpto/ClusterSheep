@@ -32,5 +32,6 @@ steps:
 
 - script: |
     cat $(PYPIRC_PATH)
-    python -m twine upload --config-file $(PYPIRC_PATH) dist/*.whl
+    echo ====****
+    python -m twine upload -r "ClusterSheep" --config-file $(PYPIRC_PATH) dist/*.whl
   displayName: 'Upload to PyPI'
