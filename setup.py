@@ -16,7 +16,8 @@ Desciption of this module:
 """
 
 # ====BEGIN OF MODULE IMPORT====
-from distutils.core import setup
+import os
+from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 # ====END OF MODULE IMPORT====
 
@@ -26,6 +27,11 @@ from Cython.Build import cythonize
 
 
 # ====BEGIN OF GLOBAL VARIABLE DECLARATION====
+here = os.path.abspath(os.path.dirname(__file__));
+
+extensions = [Extension('ClusterSheep.prcs.parallel.find_cluster', [os.path.join(here, 'lib/find_cluster.pyx')]),
+              Extension('ClusterSheep.prcs.parallel.binning', [os.path.join(here, 'lib/binning.pyx')]),
+              Extension('ClusterSheep.prcs.parallel.cpu_kernel', [os.path.join(here, 'lib/cpu_kernel.pyx')])]
 # ====END OF GLOBAL VARIABLE DECLARATION====
 
 
@@ -34,10 +40,22 @@ from Cython.Build import cythonize
 
 
 # ====BEGIN OF CODE====
+def get_version(path):
+    with open(path) as fp:
+        for line in fp.readlines():
+            if line.startswith('VERSION'):
+                return line.split('=')[1].strip().strip("'")
+
+
 setup(
-    ext_modules=cythonize(["prcs/parallel/find_cluster.pyx",
-                           "prcs/parallel/binning.pyx",
-                           "prcs/parallel/cpu_kernel.pyx"])
+    name='ClusterSheep',
+    version=get_version(os.path.join(here, 'src/ClusterSheep/property.py')),
+    author='Paul TO',
+    author_email='kpto@connect.ust.hk',
+    package_dir={'': 'src'},
+    packages=find_packages(where='src'),
+    ext_modules=cythonize(extensions),
+    entry_points={'console_scripts': ['clustersheep=ClusterSheep.main:main']}
 )
 # ====END OF CODE====
 
