@@ -76,7 +76,7 @@ class Log:
         return
 
     def update(self):
-        session = envr.session.get_session()
+        session = ClusterSheep.envr.session.get_session()
 
         logger = logging.getLogger()
         logger.removeHandler(self.file_handler)

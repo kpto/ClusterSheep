@@ -73,25 +73,25 @@ class Session:
         return pformat(vars(self))
 
     def mount_internal_index(self):
-        from share.internal_index import Index
+        from ClusterSheep.share.internal_index import Index
         if type(self.internal_index) is Index: return
         self.internal_index = Index.mount_file()
         return
 
     def mount_identification_lut(self):
-        from share.identification_lut import IdentificationLUT
+        from ClusterSheep.share.identification_lut import IdentificationLUT
         if type(self.iden_lut) is IdentificationLUT: return
         self.iden_lut = IdentificationLUT.mount_file()
         return
 
     def mount_ranked_spectra(self):
-        from share.ranked_spectra import RankedSpectra
+        from ClusterSheep.share.ranked_spectra import RankedSpectra
         if type(self.ranked_spectra) is RankedSpectra: return
         self.ranked_spectra = RankedSpectra.mount_file()
         return
 
     def mount_clusters(self):
-        from share.clusters import Clusters
+        from ClusterSheep.share.clusters import Clusters
         if type(self.clusters) is Clusters: return
         self.clusters = Clusters.mount_file()
         return

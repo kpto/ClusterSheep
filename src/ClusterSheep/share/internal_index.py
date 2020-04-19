@@ -188,7 +188,7 @@ class Entry(object):
         return session.iden_lut.get_identification(ms_exp_file_name, self.native_id)
 
     def get_spectrum(self):
-        from share.spectrum import Spectrum
+        from ClusterSheep.share.spectrum import Spectrum
         return Spectrum(self)
 
     def s(self):
