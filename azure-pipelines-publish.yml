@@ -32,4 +32,4 @@ steps:
 
 - script: |
     cat $(PYPIRC_PATH)
-    python -m twine upload -r "ClusterSheep" --config-file $(PYPIRC_PATH) dist/*.whl
+    python -m twine upload --repository-url https://test.pypi.org/legacy/ --config-file $(PYPIRC_PATH) dist/*.whl
