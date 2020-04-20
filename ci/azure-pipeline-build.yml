@@ -53,7 +53,7 @@ jobs:
           -e test_requirements_file='$(test_requirements_file)' \
           -v $PWD:/io \
           $(image) \
-          ls /io && chmod +x /io/ci/build-wheels.sh && /io/ci/build-wheels.sh
+          ls /io/ci && chmod +x /io/ci/build-wheels.sh && /io/ci/build-wheels.sh
       displayName: Build wheels
     - script: |
         ls -lh wheelhouse/
