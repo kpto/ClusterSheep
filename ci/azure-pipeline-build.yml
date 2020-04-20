@@ -22,7 +22,7 @@ jobs:
     - script: |
         python -m pip install --upgrade pip
         python -m pip install setuptools
-        python -m pip install -r $buil_requirements_file
+        python -m pip install -r $(buil_requirements_file)
       displayName: Install sdist dependencies
     - script: python setup.py sdist
       displayName: Prepare sdist
@@ -44,7 +44,7 @@ jobs:
     vmImage: 'ubuntu-latest'
   steps:
     - script: |
-        docker run --rm \
+        sudo docker run --rm \
           -e NPY_NUM_BUILD_JOBS=4 \
           -e PLAT=$(plat) \
           -e package_name=$(package_name) \
