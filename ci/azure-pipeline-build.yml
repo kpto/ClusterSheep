@@ -44,7 +44,7 @@ jobs:
     vmImage: 'ubuntu-latest'
   steps:
     - script: |
-        sudo docker run --rm \
+        docker run --rm \
           -e NPY_NUM_BUILD_JOBS=4 \
           -e PLAT=$(plat) \
           -e package_name=$(package_name) \
