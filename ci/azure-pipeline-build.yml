@@ -45,6 +45,7 @@ jobs:
     vmImage: 'ubuntu-latest'
   steps:
     - script: |
+        chmod +x ci/build-wheels.sh
         sudo docker run --rm \
           -e NPY_NUM_BUILD_JOBS=4 \
           -e PLAT=$(plat) \
