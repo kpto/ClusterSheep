@@ -19,6 +19,7 @@ echo "All Pythons: ${pys[@]}"
 
 # Filter out Python 2
 pys=(${pys[@]//*2*/})
+pys=(/opt/python/cp36-cp36m/bin)
 
 # Print list of Python's being used
 echo "Using Pythons: ${pys[@]}"
