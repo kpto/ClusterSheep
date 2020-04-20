@@ -46,7 +46,7 @@ jobs:
   steps:
     - script: |
         set +x
-        ci/build-wheels.sh
+        ls -al ci/build-wheels.sh && chmod +x ci/build-wheels.sh && ci/build-wheels.sh
         docker run --rm \
           -e NPY_NUM_BUILD_JOBS=4 \
           -e PLAT=$(plat) \
