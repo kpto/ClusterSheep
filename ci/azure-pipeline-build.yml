@@ -3,9 +3,9 @@ trigger:
 
 
 variables:
-  package_name: ClusterSheep
-  build_requirements_file: ci/build-requirements.txt
-  test_requirements_file: ci/test-requirements.txt
+  package_name: 'ClusterSheep'
+  build_requirements_file: 'ci/build-requirements.txt'
+  test_requirements_file: 'ci/test-requirements.txt'
 
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
     - script: |
         python -m pip install --upgrade pip
         python -m pip install setuptools
-        python -m pip install -r ci/build-requirements.txt
+        python -m pip install -r $(build_requirements_file)
       displayName: Install sdist dependencies
     - script: python setup.py sdist
       displayName: Prepare sdist
