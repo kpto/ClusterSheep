@@ -52,7 +52,7 @@ jobs:
           -e test_requirements_file='$(test_requirements_file)' \
           -v $PWD:/io \
           $(image) \
-          /io/ci/build-wheels.sh
+          cat /io/ci/build-wheels.sh
       displayName: Build wheels
     - script: |
         ls -lh wheelhouse/
