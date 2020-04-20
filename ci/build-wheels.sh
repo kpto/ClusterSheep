@@ -17,15 +17,15 @@ pys=(/opt/python/*/bin)
 # Print list of Python's available
 echo "All Pythons: ${pys[@]}"
 
-# Filter out Python 3.4
-pys=(${pys[@]//*34*/})
+# Filter out Python 2
+pys=(${pys[@]//*2*/})
 
 # Print list of Python's being used
 echo "Using Pythons: ${pys[@]}"
 
 # Compile wheels
 for PYBIN in "${pys[@]}"; do
-    "${PYBIN}/pip" install -r /io/$buil_requirements_file
+    "${PYBIN}/pip" install -r /io/$build_requirements_file
     "${PYBIN}/pip" wheel -v /io/ -w wheelhouse/
 done
 
