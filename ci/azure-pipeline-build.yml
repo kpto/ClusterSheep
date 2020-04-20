@@ -3,9 +3,9 @@ trigger:
 
 
 variables:
-  package_name: 'ClusterSheep'
-  build_requirements_file: 'ci/build-requirements.txt'
-  test_requirements_file: 'ci/test-requirements.txt'
+  package_name: ClusterSheep
+  build_requirements_file: ci/build-requirements.txt
+  test_requirements_file: ci/test-requirements.txt
 
 
 jobs:
@@ -20,6 +20,7 @@ jobs:
 #      inputs:
 #        versionSpec: '3.8'
 #    - script: |
+#        set -x
 #        python -m pip install --upgrade pip
 #        python -m pip install setuptools
 #        python -m pip install -r $(build_requirements_file)
@@ -52,7 +53,7 @@ jobs:
           -e test_requirements_file='$(test_requirements_file)' \
           -v $PWD:/io \
           $(image) \
-          chmod +x /io/ci/build-wheels.sh && /io/ci/build-wheels.sh
+          ls /io && chmod +x /io/ci/build-wheels.sh && /io/ci/build-wheels.sh
       displayName: Build wheels
     - script: |
         ls -lh wheelhouse/
