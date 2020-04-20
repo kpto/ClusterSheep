@@ -45,9 +45,8 @@ jobs:
     vmImage: 'ubuntu-latest'
   steps:
     - script: |
-        set +x
-        ls -al ci/build-wheels.sh && chmod +x ci/build-wheels.sh && ci/build-wheels.sh
-        docker run --rm \
+        chmod +x ci/build-wheels.sh
+        sudo docker run --rm \
           -e NPY_NUM_BUILD_JOBS=4 \
           -e PLAT=$(plat) \
           -e package_name=$(package_name) \
@@ -55,7 +54,7 @@ jobs:
           -e test_requirements_file='$(test_requirements_file)' \
           -v $PWD:/io \
           $(image) \
-          ls -al /io/ci/build-wheels.sh && sh /io/ci/build-wheels.sh
+          /io/ci/build-wheels.sh
       displayName: Build wheels
     - script: |
         ls -lh wheelhouse/
