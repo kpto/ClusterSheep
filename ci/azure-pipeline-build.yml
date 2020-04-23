@@ -63,3 +63,8 @@ jobs:
         mkdir -p dist
         cp wheelhouse/$(package_name)*.whl dist/.
       displayName: Show and copy wheels
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'NUnit'
+        testResultsFiles: 'test-result.xml'
+      displayName: Publish test result

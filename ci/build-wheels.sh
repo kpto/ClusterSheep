@@ -40,7 +40,7 @@ for PYBIN in "${pys[@]}"; do
     "${PYBIN}/pip" install -r /io/$test_requirements_file
     "${PYBIN}/pip" install $package_name --no-index -f /io/wheelhouse
     if [ -d "/io/tests" ]; then
-        "${PYBIN}/pytest" /io/tests
+        "${PYBIN}/pytest" --nunitxml=/io/test-result.xml /io/tests
     else
         "${PYBIN}/pytest" --pyargs $package_name
     fi
