@@ -48,7 +48,6 @@ jobs:
         chmod +x ci/build-wheels.sh
         sudo docker run \
           --rm \
-          --user "$(id -u):$(id -g)" \
           -e NPY_NUM_BUILD_JOBS=4 \
           -e PLAT=$(plat) \
           -e package_name=$(package_name) \
