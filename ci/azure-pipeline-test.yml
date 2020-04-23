@@ -4,7 +4,7 @@
 # https://docs.microsoft.com/azure/devops/pipelines/languages/python
 
 pr:
-- master
+- azure-pipeline-test
 
 jobs:
 - job: 'UnitTest'
@@ -27,4 +27,6 @@ jobs:
   - script: |
       pip install pytest pytest-azurepipelines
       pytest
+      echo asdasdasdasdasd
+      ls -al /
     displayName: 'pytest'
