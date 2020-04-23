@@ -74,7 +74,8 @@ def pytest_sessionfinish(session, exitstatus):
             mountinfo = fobj.read()
         mountinfo = mountinfo.decode(sys.getfilesystemencoding())
     if mountinfo:
-        xmlabspath = apply_docker_mappings(mountinfo, xmlabspath)
+        # xmlabspath = apply_docker_mappings(mountinfo, xmlabspath)
+        xmlabspath = '/io/' + DEFAULT_PATH
         print('dhaskjhdskjadhaskhdkahdklashadhl\n{0}'.format(xmlabspath))
 
     # Set the run title in the UI to a configurable setting
