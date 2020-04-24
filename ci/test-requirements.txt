@@ -1,2 +1,2 @@
 pytest
-pytest-nunit==0.5.3
+pytest-nunit

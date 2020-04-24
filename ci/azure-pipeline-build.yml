@@ -56,8 +56,9 @@ jobs:
           -v $PWD:/io \
           $(image) \
           /io/ci/build-wheels.sh
-      displayName: Build wheels
+      displayName: Build wheels and unit test
     - script: |
+        ls -al
         ls -lh wheelhouse/
         mkdir -p dist
         cp wheelhouse/$(package_name)*.whl dist/.
@@ -65,5 +66,5 @@ jobs:
     - task: PublishTestResults@2
       inputs:
         testResultsFormat: 'NUnit'
-        testResultsFiles: 'test-result.xml'
+        testResultsFiles: 'test-output.xml'
       displayName: Publish test result
