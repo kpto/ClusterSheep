@@ -1,8 +1,6 @@
 #!/bin/bash
 # Based on https://github.com/scikit-hep/azure-wheel-helpers/blob/master/build-wheels.sh
 
-echo "$build_requirements_file, $test_requirements_file"
-
 # Collect the pythons
 pys=(/opt/python/*/bin)
 
@@ -25,7 +23,8 @@ done
 
 # Install packages and test
 for PYBIN in "${pys[@]}"; do
+    VERSION=$($PYBIN/python -V)
     "${PYBIN}/pip" install -r /io/$test_requirements_file
     "${PYBIN}/pip" install $package_name --no-index -f /io/wheelhouse
-    "${PYBIN}/pytest" --nunitxml=/io/test-output.xml /io/tests
+    "${PYBIN}/pytest" --nunitxml="/io/${VERSION// /}-test-output.xml" /io/tests
 done

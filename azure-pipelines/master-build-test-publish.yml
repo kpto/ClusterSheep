@@ -1,0 +1,68 @@
+# Based on https://github.com/scikit-hep/azure-wheel-helpers/blob/master/azure-pipeline-build.yml
+
+trigger:
+- azure-pipeline-test
+
+
+variables:
+  package_name: ClusterSheep
+  build_requirements_file: azure-pipelines/build-requirements.txt
+  test_requirements_file: azure-pipelines/test-requirements.txt
+
+
+jobs:
+
+- job: BuildTestPublish
+  displayName: 'Build, run pytest and publish to PyPI'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - task: UsePythonVersion@0
+      inputs:
+        versionSpec: '3.8'
+      displayName: 'Use Python 3.8'
+
+    - script: |
+        set -x
+        python -m pip install --upgrade pip
+        python -m pip install setuptools
+        python -m pip install -r $(build_requirements_file)
+      displayName: 'Install sdist dependencies'
+
+    - script: python setup.py sdist
+      displayName: 'Build sdist'
+
+    - script: |
+        chmod +x ci/templates/build-test.sh
+        sudo docker run \
+          --rm \
+          -e NPY_NUM_BUILD_JOBS=4 \
+          -e PLAT=manylinux1_x86_64 \
+          -e package_name=$(package_name) \
+          -e build_requirements_file='$(build_requirements_file)' \
+          -e test_requirements_file='$(test_requirements_file)' \
+          -v $PWD:/io \
+          quay.io/pypa/manylinux1_x86_64 \
+          /io/ci/templates/build-test.sh
+      displayName: 'Build bdist wheels and run pytest in manylinux'
+
+    - script: |
+        ls -lh wheelhouse/
+        mkdir -p dist
+        cp wheelhouse/$(package_name)*.whl dist/.
+      displayName: 'Show and copy wheels to dist/'
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'NUnit'
+        testResultsFiles: '*-test-output.xml'
+      displayName: 'Publish test results'
+
+#    - task: TwineAuthenticate@1
+#      inputs:
+#        pythonUploadServiceConnection: 'PyPi-ClusterSheep'
+#      displayName: 'Twine authenticate'
+#
+#    - script: |
+#        python -m twine upload --repository testpypi --config-file $(PYPIRC_PATH) dist/*
+#      displayName: 'Upload to PyPI'
