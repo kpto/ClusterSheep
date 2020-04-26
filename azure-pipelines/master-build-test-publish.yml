@@ -55,7 +55,6 @@ jobs:
       inputs:
         testResultsFormat: 'NUnit'
         testResultsFiles: '*-test-output.xml'
-        testRunTitle: 'Test title'
       displayName: 'Publish test results'
 
     - task: TwineAuthenticate@1
