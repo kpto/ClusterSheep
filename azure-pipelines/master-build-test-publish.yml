@@ -55,13 +55,14 @@ jobs:
       inputs:
         testResultsFormat: 'NUnit'
         testResultsFiles: '*-test-output.xml'
+        testRunTitle: 'Test title'
       displayName: 'Publish test results'
 
-#    - task: TwineAuthenticate@1
-#      inputs:
-#        pythonUploadServiceConnection: 'PyPi-ClusterSheep'
-#      displayName: 'Twine authenticate'
-#
-#    - script: |
-#        python -m twine upload --repository testpypi --config-file $(PYPIRC_PATH) dist/*
-#      displayName: 'Upload to PyPI'
+    - task: TwineAuthenticate@1
+      inputs:
+        pythonUploadServiceConnection: 'PyPi-ClusterSheep'
+      displayName: 'Twine authenticate'
+
+    - script: |
+        python -m twine upload --repository testpypi --config-file $(PYPIRC_PATH) dist/*
+      displayName: 'Upload to PyPI'
