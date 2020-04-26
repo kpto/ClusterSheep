@@ -17,8 +17,11 @@ Desciption of this module:
 
 # ====BEGIN OF MODULE IMPORT====
 import os
-from setuptools import setup, find_packages, Extension
-from Cython.Build import cythonize
+import os.path as path
+import sys
+from setuptools import setup, find_packages, Extension, Command
+
+import numpy
 # ====END OF MODULE IMPORT====
 
 
@@ -27,11 +30,21 @@ from Cython.Build import cythonize
 
 
 # ====BEGIN OF GLOBAL VARIABLE DECLARATION====
-here = os.path.abspath(os.path.dirname(__file__));
+here = os.path.abspath(os.path.dirname(__file__))
 
-extensions = [Extension('ClusterSheep.prcs.parallel.find_cluster', [os.path.join(here, 'lib/find_cluster.pyx')]),
-              Extension('ClusterSheep.prcs.parallel.binning', [os.path.join(here, 'lib/binning.pyx')]),
-              Extension('ClusterSheep.prcs.parallel.cpu_kernel', [os.path.join(here, 'lib/cpu_kernel.pyx')])]
+has_c_files = '.c' in [path.splitext(f)[1] for f in os.listdir(path.join(path.dirname(path.realpath(__file__)), 'lib'))]
+USE_CYTHON = (not has_c_files) or os.getenv('USE_CYTHON') == 'true'
+
+ext = '.pyx' if USE_CYTHON else '.c'
+
+extensions = [
+    Extension('ClusterSheep.prcs.parallel.find_cluster', [os.path.join(here, 'lib/find_cluster' + ext)]),
+    Extension('ClusterSheep.prcs.parallel.binning', [os.path.join(here, 'lib/binning' + ext)]),
+    Extension('ClusterSheep.prcs.parallel.cpu_kernel', [os.path.join(here, 'lib/cpu_kernel' + ext)])]
+
+if USE_CYTHON:
+    from Cython.Build import cythonize
+    extensions = cythonize(extensions, force=True)
 # ====END OF GLOBAL VARIABLE DECLARATION====
 
 
@@ -52,9 +65,12 @@ setup(
     version=get_version(os.path.join(here, 'src/ClusterSheep/property.py')),
     author='Paul TO',
     author_email='kpto@connect.ust.hk',
+    description='CUDA accelerated MS2 spectral clustering.',
+    url='https://github.com/kpto/ClusterSheep',
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
-    ext_modules=cythonize(extensions),
+    ext_modules=extensions,
+    include_dirs=[numpy.get_include()],
     entry_points={'console_scripts': ['clustersheep=ClusterSheep.main:main']}
 )
 # ====END OF CODE====
