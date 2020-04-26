@@ -1,7 +1,12 @@
 # Based on https://github.com/scikit-hep/azure-wheel-helpers/blob/master/azure-pipeline-build.yml
 
 trigger:
-- azure-pipeline-test
+  branches:
+    include:
+    - azure-pipeline-test
+  paths:
+    include:
+    - src/*
 
 
 variables:
