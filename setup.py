@@ -65,6 +65,8 @@ setup(
     version=get_version(os.path.join(here, 'src/ClusterSheep/property.py')),
     author='Paul TO',
     author_email='kpto@connect.ust.hk',
+    description='CUDA accelerated MS2 spectral clustering.',
+    url='https://github.com/kpto/ClusterSheep',
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
     ext_modules=extensions,
