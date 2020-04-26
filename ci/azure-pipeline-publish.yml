@@ -18,12 +18,8 @@ steps:
 
 - script: |
     python -m pip install --upgrade pip
-    pip install Cython wheel twine numpy
-  displayName: 'Install dependencies'
-
-- script: |
-    python setup.py sdist bdist_wheel
-  displayName: 'Build wheel'
+    pip install twine
+  displayName: 'Install twine'
 
 - task: TwineAuthenticate@1
   inputs:

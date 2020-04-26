@@ -1,3 +1,5 @@
+# Based on https://github.com/scikit-hep/azure-wheel-helpers/blob/master/azure-pipeline-build.yml
+
 trigger:
   - azure-pipeline-test
 
@@ -58,7 +60,6 @@ jobs:
           /io/ci/build-wheels.sh
       displayName: Build wheels and unit test
     - script: |
-        ls -al
         ls -lh wheelhouse/
         mkdir -p dist
         cp wheelhouse/$(package_name)*.whl dist/.
