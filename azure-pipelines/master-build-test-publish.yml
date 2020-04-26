@@ -24,9 +24,9 @@ jobs:
 
     - script: |
         python -m pip install --upgrade pip
-        python -m pip install setuptools
+        python -m pip install setuptools twine
         python -m pip install -r $(build_requirements_file)
-      displayName: 'Install sdist dependencies'
+      displayName: 'Install sdist dependencies and twine'
 
     - script: python setup.py sdist
       displayName: 'Build sdist'
@@ -64,5 +64,6 @@ jobs:
       displayName: 'Twine authenticate'
 
     - script: |
+
         python -m twine upload --repository testpypi --config-file $(PYPIRC_PATH) dist/*
       displayName: 'Upload to PyPI'
