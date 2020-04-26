@@ -23,7 +23,6 @@ jobs:
       displayName: 'Use Python 3.8'
 
     - script: |
-        set -x
         python -m pip install --upgrade pip
         python -m pip install setuptools
         python -m pip install -r $(build_requirements_file)
@@ -33,7 +32,7 @@ jobs:
       displayName: 'Build sdist'
 
     - script: |
-        chmod +x ci/templates/build-test.sh
+        chmod +x azure-pipelines/build-test.sh
         sudo docker run \
           --rm \
           -e NPY_NUM_BUILD_JOBS=4 \
@@ -43,7 +42,7 @@ jobs:
           -e test_requirements_file='$(test_requirements_file)' \
           -v $PWD:/io \
           quay.io/pypa/manylinux1_x86_64 \
-          /io/ci/templates/build-test.sh
+          /io/azure-pipelines/build-test.sh
       displayName: 'Build bdist wheels and run pytest in manylinux'
 
     - script: |
