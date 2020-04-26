@@ -1,7 +1,7 @@
 # Based on https://github.com/scikit-hep/azure-wheel-helpers/blob/master/azure-pipeline-build.yml
 
 trigger:
-- master
+- develop
 
 
 variables:
