@@ -1,0 +1,38 @@
+# Based on https://github.com/scikit-hep/azure-wheel-helpers/blob/master/azure-pipeline-build.yml
+
+trigger:
+- master
+
+
+variables:
+  package_name: ClusterSheep
+  build_requirements_file: azure-pipelines/build-requirements.txt
+  test_requirements_file: azure-pipelines/test-requirements.txt
+
+
+jobs:
+
+- job: BuildTest
+  displayName: 'Build and run pytest'
+  pool:
+    vmImage: 'ubuntu-latest'
+  steps:
+    - script: |
+        chmod +x azure-pipelines/build-test.sh
+        sudo docker run \
+          --rm \
+          -e NPY_NUM_BUILD_JOBS=4 \
+          -e PLAT=manylinux1_x86_64 \
+          -e package_name=$(package_name) \
+          -e build_requirements_file='$(build_requirements_file)' \
+          -e test_requirements_file='$(test_requirements_file)' \
+          -v $PWD:/io \
+          quay.io/pypa/manylinux1_x86_64 \
+          /io/azure-pipelines/build-test.sh
+      displayName: 'Build bdist wheels and run pytest in manylinux'
+
+    - task: PublishTestResults@2
+      inputs:
+        testResultsFormat: 'NUnit'
+        testResultsFiles: '*-test-output.xml'
+      displayName: 'Publish test results'
