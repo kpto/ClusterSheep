@@ -4,6 +4,9 @@ trigger:
 - release
 
 
+pr: none
+
+
 variables:
   package_name: ClusterSheep
   build_requirements_file: azure-pipelines/build-requirements.txt
