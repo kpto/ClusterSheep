@@ -45,6 +45,9 @@ extensions = [
 if USE_CYTHON:
     from Cython.Build import cythonize
     extensions = cythonize(extensions, force=True)
+
+with open("README.rst", "r") as fh:
+    long_description = fh.read()
 # ====END OF GLOBAL VARIABLE DECLARATION====
 
 
@@ -61,17 +64,32 @@ def get_version(path):
 
 
 setup(
-    name='ClusterSheep',
-    version=get_version(os.path.join(here, 'src/ClusterSheep/property.py')),
-    author='Paul TO',
-    author_email='kpto@connect.ust.hk',
-    description='CUDA accelerated MS2 spectral clustering.',
-    url='https://github.com/kpto/ClusterSheep',
     package_dir={'': 'src'},
     packages=find_packages(where='src'),
     ext_modules=extensions,
     include_dirs=[numpy.get_include()],
-    entry_points={'console_scripts': ['clustersheep=ClusterSheep.main:main']}
+    entry_points={'console_scripts': ['clustersheep=ClusterSheep.main:main']},
+    name='ClusterSheep',
+    version=get_version(os.path.join(here, 'src/ClusterSheep/property.py')),
+    author='Paul TO',
+    author_email='kpto@connect.ust.hk',
+    url='https://github.com/kpto/ClusterSheep',
+    description='CUDA accelerated MS2 spectral clustering.',
+    long_description=long_description,
+    long_description_content_type="text/x-rst",
+    license='LGPL',
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Intended Audience :: Science/Research',
+        'Programming Language :: C',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Topic :: Scientific/Engineering :: Bio-Informatics'
+    ]
 )
 # ====END OF CODE====
 
