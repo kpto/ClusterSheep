@@ -25,7 +25,7 @@ import numpy as np
 
 
 # ====BEGIN OF GLOBAL VARIABLE DECLARATION====
-VERSION = '20.04.4'
+VERSION = '20.04.5'
 NAME = 'ClusterSheep'
 
 # size of the header of customized file format for metadata
