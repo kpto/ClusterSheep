@@ -45,9 +45,6 @@ extensions = [
 if USE_CYTHON:
     from Cython.Build import cythonize
     extensions = cythonize(extensions, force=True)
-
-with open("README.rst", "r") as fh:
-    long_description = fh.read()
 # ====END OF GLOBAL VARIABLE DECLARATION====
 
 
@@ -75,8 +72,8 @@ setup(
     author_email='kpto@connect.ust.hk',
     url='https://github.com/kpto/ClusterSheep',
     description='CUDA accelerated MS2 spectral clustering.',
-    long_description=long_description,
-    long_description_content_type="text/x-rst",
+    long_description=open('README.rst', encoding='utf-8').read(),
+    long_description_content_type='text/x-rst',
     license='LGPL',
     classifiers=[
         'Development Status :: 3 - Alpha',
