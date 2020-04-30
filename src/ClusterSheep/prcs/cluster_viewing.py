@@ -24,7 +24,6 @@ from datetime import datetime
 import os
 from ast import literal_eval
 import readline
-import matplotlib.pyplot
 
 from ClusterSheep.envr.session import get_session
 from ClusterSheep.share.misc import generate_colors
