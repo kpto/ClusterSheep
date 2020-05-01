@@ -17,6 +17,8 @@ Desciption of this module:
 
 # ====BEGIN OF MODULE IMPORT====
 import numpy as np
+
+from ClusterSheep._version import VERSION
 # ====END OF MODULE IMPORT====
 
 
@@ -25,7 +27,6 @@ import numpy as np
 
 
 # ====BEGIN OF GLOBAL VARIABLE DECLARATION====
-VERSION = '0.1.1'
 NAME = 'ClusterSheep'
 
 # size of the header of customized file format for metadata
