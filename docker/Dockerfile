@@ -8,16 +8,15 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-key adv --keyserver keys.openpgp.org --recv-key 612DEFB798507F25 \
     && echo "deb [ arch=amd64 ] https://downloads.skewed.de/apt bionic main" | tee -a /etc/apt/sources.list \
     && apt-get update \
-    && apt-get -y install python3-gv python3-matplotlib python3-cairo python3-gi-cairo python3-gi gir1.2-gtk-3.0 \
+    && apt-get -y install python3-gv python3-tk python3-cairo python3-gi-cairo python3-gi gir1.2-gtk-3.0 \
     && apt-get -y install --no-install-recommends python3-graph-tool
 
 
-# Install pip and dependencies, upgrade numpy and scipy
+# Install pip and dependencies, upgrade scipy, numpy and matplotlib
 RUN apt-get -y install curl python3 python3-dev python3-distutils \
     && curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py \
     && python3 get-pip.py \
-    && pip install pycuda pyopenms Cython \
-    && pip install numpy scipy --upgrade
+    && pip install pycuda pyopenms Cython scipy numpy matplotlib --upgrade
 
 
 # Install sudo and add non-root user

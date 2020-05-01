@@ -167,7 +167,7 @@ class Spectrum(Entry):
             mz, intensity = temp.mz, temp.intensity
         else:
             mz, intensity = target._binning(target.mz, target.intensity)
-        rects = ax.bar(mz, intensity, 1, color=color, edgecolor=color)
+        rects = ax.bar(mz, intensity, width=1, color=color, linewidth=0, snap=False)
         if show_iden or highlight:
             identification = target.get_identification() if not self.override_iden else self.override_iden
             if identification:
@@ -177,11 +177,11 @@ class Spectrum(Entry):
                 if show_iden:
                     y_loc = 0.9 if top else 0.1
                     ax.text(0.5, y_loc, title, horizontalalignment='center',
-                            verticalalignment='center', transform=ax.transAxes, fontsize=36)
+                            verticalalignment='center', transform=ax.transAxes, fontsize=12)
                 if highlight:
                     tspec = om.MSSpectrum()
                     try:
-                        aa_sequence = om.AASequence.fromString(tpp_string, False)
+                        aa_sequence = om.AASequence.fromString(tpp_string)
                     except Exception:
                         logging.info('String "{}" cannot be understood by pyopenms.AASequence.'.format(tpp_string))
                         aa_sequence = None
@@ -204,14 +204,14 @@ class Spectrum(Entry):
                                 color = colors[ion_name[0]]
                                 rect = rects[i]
                                 height = rect.get_height()
-                                ax.text(rect.get_x() + rect.get_width() / 2., 1.05 * height, ion_name, fontsize=18,
-                                        ha='center', va='center', color=color)
+                                pos_x = rect.get_x() + rect.get_width() / 2.
+                                pos_y = height + 0.01 * (1 if height > 0 else -1)
+                                ax.text(pos_x, pos_y, ion_name, fontsize=6, ha='center', va='center', color=color)
                                 rect.set_color(color)
-                                rect.set_edgecolor(color)
         return
 
     def plot(self, against=None, x_limit=(0, 2000), verificative=True, show_iden=True, highlight=True):
-        fig, ax = plt.subplots(2, 1, figsize=(23, 11.5), sharex=True)
+        fig, ax = plt.subplots(2, 1, figsize=(12, 6), sharex=True)
         color_top = 'silver'
         color_bottom = 'silver'
 

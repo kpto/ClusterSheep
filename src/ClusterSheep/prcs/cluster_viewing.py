@@ -25,6 +25,7 @@ import os
 from ast import literal_eval
 import readline
 import matplotlib
+import matplotlib.pyplot
 
 from ClusterSheep.envr.session import get_session
 from ClusterSheep.share.misc import generate_colors
@@ -162,7 +163,8 @@ class _Callback:
 
 
 # ====BEGIN OF CODE====
-matplotlib.use('TkAgg')
+matplotlib.use('GTK3Cairo')
+matplotlib.interactive(True)
 
 def cluster_viewer(globals_):
     _refresh_session()
@@ -518,8 +520,11 @@ def draw_cluster_interactive(graph, force_draw_edge=False):
         graph = gt.GraphView(graph, efilt=graph.new_ep('bool', val=False))
         logging.info('Number of edges exceeds 10000, edges are not drawn to ensure the stability.')
     fill_color = _fill_vertex_color(graph)
-    gt.graph_draw(graph, pos=pos, vertex_size=9, vertex_fill_color=fill_color,
-                  bg_color=(1, 1, 1, 1), key_press_callback=_Callback())
+    win = gt.GraphWindow(graph, pos, (800, 600), vertex_size=9, vertex_fill_color=fill_color,
+                         bg_color=(1, 1, 1, 1), key_press_callback=_Callback())
+    win.connect('destroy', lambda _: matplotlib.pyplot.close('all'))
+    win.show_all()
+    gt.graph_draw(graph, window=win)
     return
 
 
