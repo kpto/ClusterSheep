@@ -9,6 +9,8 @@ trigger:
     - lib/*
     - src/*
     - tests/*
+    exclude:
+    - src/ClusterSheep/_version.py
 
 
 pr: none
