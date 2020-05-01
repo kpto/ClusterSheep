@@ -67,7 +67,7 @@ setup(
     include_dirs=[numpy.get_include()],
     entry_points={'console_scripts': ['clustersheep=ClusterSheep.main:main']},
     name='ClusterSheep',
-    version=get_version(os.path.join(here, 'src/ClusterSheep/property.py')),
+    version=get_version(os.path.join(here, 'src/ClusterSheep/_version.py')),
     author='Paul TO',
     author_email='kpto@connect.ust.hk',
     url='https://github.com/kpto/ClusterSheep',

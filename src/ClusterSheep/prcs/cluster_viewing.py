@@ -24,7 +24,7 @@ from datetime import datetime
 import os
 from ast import literal_eval
 import readline
-import matplotlib.pyplot
+import matplotlib
 
 from ClusterSheep.envr.session import get_session
 from ClusterSheep.share.misc import generate_colors
@@ -162,6 +162,8 @@ class _Callback:
 
 
 # ====BEGIN OF CODE====
+matplotlib.use('TkAgg')
+
 def cluster_viewer(globals_):
     _refresh_session()
     if iden_lut:
