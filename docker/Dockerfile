@@ -19,6 +19,10 @@ RUN apt-get -y install curl python3 python3-dev python3-distutils \
     && pip install pycuda pyopenms Cython scipy numpy matplotlib --upgrade
 
 
+# Install ClusterSheep
+RUN pip install -i https://test.pypi.org/simple/ ClusterSheep
+
+
 # Install sudo and add non-root user
 RUN apt-get -y install sudo \
     && groupadd -g 1000 user \
