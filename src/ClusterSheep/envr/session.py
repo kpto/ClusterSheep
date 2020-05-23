@@ -44,6 +44,7 @@ class Session:
 
     def __init__(self):
         time = datetime.now()
+        self.session_file = None
         self.name = time.isoformat() + '_' + NAME.lower()
         self.creation_time = time
         self.magic_label = uuid4()
@@ -96,6 +97,11 @@ class Session:
         self.clusters = Clusters.mount_file()
         return
 
+    def delete_session_file(self):
+        if self.session_file.exists():
+            self.session_file.unlink()
+        return
+
     def save_session(self):
         logging.info('Saving session.')
         session_file = Path.cwd().joinpath(_session.name + FILE_EXTENSION_SESSION)
@@ -146,6 +152,7 @@ class Session:
                 raise
 
         session = Session()
+        session.session_file = session_file
         session.name = name
         session.creation_time = creation_time
         session.magic_label = magic_label
@@ -279,6 +286,7 @@ def setup(flags):
         # logging.debug('Files mounted.')
     else:
         set_session(Session.new_session(flags))
+        _session.save_session()
     return
 
 

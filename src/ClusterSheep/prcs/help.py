@@ -92,6 +92,7 @@ Examples:
 '''
 
 OPTIONS = [
+    ['--version', ('Print the version of this software.',)],
     ['--name=', ('Give the new session a name.',
                  'If not provided, the new session will be named by date and time.')],
     ['--fork=', ('Fork a session with a new name.',

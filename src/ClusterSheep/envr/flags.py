@@ -58,6 +58,7 @@ class Flags:
         self.list_gpus = False
         self.test_gpus = False
         self.print_session = False
+        self.print_version = False
         return
 
     def __repr__(self):
@@ -83,7 +84,8 @@ class Flags:
                '--rebuild-iden-lut:' + str(self.rebuild_iden_lut) + '\n' + \
                '--list-gpus:' + str(self.list_gpus) + '\n' + \
                '--test-gpus:' + str(self.test_gpus) + '\n' + \
-               '--print-session:' + str(self.print_session)
+               '--print-session:' + str(self.print_session) + \
+               '--version:' + str(self.print_version)
 
     @staticmethod
     def _get_path(option, raw, type_):
@@ -280,6 +282,16 @@ class Flags:
         self.print_session = True
         return
 
+    def func_print_version(self, value):
+        option_name = '--version'
+        Flags._redundant_value_error(option_name, value)
+        Flags._conflict_error(('--name', '--fork', '--file-list', '--force', '--use-cpu', '--ignore-errors',
+                               '--config', '-dev-mode', '--checkpoint', '--preparation-only', '--stay-interactive', '--load-session',
+                               '--no-saving', '--keep-trash', '--re-process', '--re-cluster', '--rebuild-iden_lut',
+                               '--list-gpus', '--test-gpus', '--print-session'), option_name)
+        self.print_version = True
+        return
+
     def get_function_map(self):
         function_map = {
             '--name': self.func_name,
@@ -301,7 +313,8 @@ class Flags:
             '--rebuild-iden-lut': self.func_rebuild_iden_lut,
             '--list-gpus': self.func_list_gpus,
             '--test-gpus': self.func_test_gpus,
-            '--print-session': self.func_print_session
+            '--print-session': self.func_print_session,
+            '--version': self.func_print_version
         }
         return function_map
 

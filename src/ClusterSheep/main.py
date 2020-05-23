@@ -57,20 +57,24 @@ def setup_environment():
 
 def main():
     try:
-        if '--list-gpus' in sys.argv:
+        if '--version' in sys.argv:
+            from ClusterSheep.property import NAME, VERSION
+            print('{} {}'.format(NAME, VERSION))
+            return
+        elif '--list-gpus' in sys.argv:
             from ClusterSheep.prcs.list_gpus import list_gpus
             list_gpus()
-            exit()
+            return
         elif len(sys.argv) == 1:
             from ClusterSheep.prcs.help import print_help
             print_help()
-            exit()
+            return
 
         setup_environment()
 
         if session.flags.print_session:
             print(session)
-            exit()
+            return
 
         if session.flags.re_cluster:
             session.config.cg_finished.value = False
@@ -96,6 +100,7 @@ def main():
             checkpoint('Index Building')
             from ClusterSheep.prcs.parallel.index_building import build_index
             build_index()
+            session.save_session()
         else:
             session.mount_internal_index()
 
@@ -104,6 +109,7 @@ def main():
             session.mount_internal_index()
             from ClusterSheep.prcs.parallel.rank_transformation import rank_transform
             rank_transform()
+            session.save_session()
         else:
             if Path.cwd().joinpath(session.name + FILE_EXTENSION_RANKED_SPECTRA).exists():
                 session.mount_ranked_spectra()
@@ -112,6 +118,7 @@ def main():
             checkpoint('Identification Import')
             from ClusterSheep.prcs.parallel.identification_import import import_identification
             import_identification()
+            session.save_session()
         else:
             if Path.cwd().joinpath(session.name + FILE_EXTENSION_IDEN_LUT).exists():
                 session.mount_identification_lut()
@@ -127,11 +134,13 @@ def main():
                 session.mount_ranked_spectra()
                 from ClusterSheep.prcs.parallel.clustering import clustering
                 clustering()
+                session.save_session()
             if not session.config.cr_finished.value:
                 checkpoint('Cluster Refinement')
                 session.mount_clusters()
                 from ClusterSheep.prcs.parallel.cluster_refinement import refine_cluster
                 refine_cluster()
+                session.save_session()
             if session.flags.no_saving:
                 Path.cwd().joinpath(session.name + FILE_EXTENSION_RANKED_SPECTRA).unlink()
             session.mount_clusters()
@@ -155,6 +164,8 @@ def main():
         logging.info('All process finished.')
         if not session.flags.no_saving:
             session.save_session()
+        else:
+            session.delete_session_file()
 
         if session.flags.stay_interactive:
             from ClusterSheep.prcs.cluster_viewing import cluster_viewer

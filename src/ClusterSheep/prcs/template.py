@@ -114,7 +114,7 @@ cg_precursor_tolerance = 1.1
 /A spectrum pair with precursor difference larger than the set threshold are assumed to be dissimilar and skipped.
 /The higher of the value, the longer of the running time.
 
-cg_dot_product_threshold = 0.8
+cg_dot_product_threshold = 0.7
 /(float, 0.0 - 1.0)
 /An edge is formed only if a spectrum pair have the similarity score larger than the set threshold.
 
