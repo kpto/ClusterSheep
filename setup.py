@@ -72,8 +72,8 @@ setup(
     author_email='kpto@connect.ust.hk',
     url='https://github.com/kpto/ClusterSheep',
     description='CUDA accelerated MS2 spectral clustering.',
-    long_description=open('README.rst', encoding='utf-8').read(),
-    long_description_content_type='text/x-rst',
+    long_description=open('README.md', encoding='utf-8').read(),
+    long_description_content_type='text/markdown',
     license='LGPL',
     classifiers=[
         'Development Status :: 3 - Alpha',

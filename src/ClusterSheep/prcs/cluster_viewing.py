@@ -524,7 +524,8 @@ def draw_cluster_interactive(graph, force_draw_edge=False):
                          bg_color=(1, 1, 1, 1), key_press_callback=_Callback())
     win.connect('destroy', lambda _: matplotlib.pyplot.close('all'))
     win.show_all()
-    gt.graph_draw(graph, window=win)
+    gt.graph_draw(graph, pos, vertex_size=9, vertex_fill_color=fill_color,
+                  bg_color=(1, 1, 1, 1), key_press_callback=_Callback(), window=win)
     return
 
 
