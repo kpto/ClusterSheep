@@ -22,54 +22,6 @@ from ClusterSheep.prcs.template import create_template_file
 
 
 # ====BEGIN OF CONSTANT DEFINITION====
-MASCOT = """
-                                =MM                                         
-                              ZM= .+M,                                      
-                            MM.      +M7                                    
-                 MM.     .MM.           MM     ,MMM                         
-                 .M ?M  MM.               MM 8M. M                          
-                  M   MN                    MM.  M                          
-                  M=M:                        8M.M.                         
-                 MM                             8M=                         
-              =MN                                  MM.                      
-            MM.                                      MM.                    
-          MM                                           MM.                  
-        MM8.                                            .MM                 
-           MMMMMMM,                               .  MMMMMMN               
-                    ?MMM                     ..MMMMM                        
-      /''\            M                         M            /''\         
-     |    |          M.       MM       MM       MM          |    |     
-      '..' MM.     .MM                           M       .MM '..'   
-              MM.  ~M.                           7M   .MM 
-                 MM+M                             M?MM                     
-                   MM,         M.     .M           M                         
-                   M             MMMMM             M.                         
-                   M$                              M.                         
-                   M.                              8M                         
-                   M                               .M                         
-                   M                                M                         
-                   M                                M                        
-                   M                                M                        
-                   M                 $$             M                        
-                .MMMMMM     MMMMM  MM  .M~ MMM,MMMMM$MMMM.                  
-         .MMMMMM.      .MMMM    .OM,    .MM.      .M$   .MM                 
-         M   .M           M       .                .        M                 
-         MM                                                 .M                 
-          M    .                                         ZM.                
-           8MMM                                             MM                
-              .M    MM                                     M.                
-              M MMMM.MM     .M       M            MO    .MMM                
-              M     8MMM. 8MMMM     +MM     M8   .M 7MMMM..               
-            .M=    M .M...M M: :MMMM~  MMMMM.MMMMM= .M.M$                
-            MN  .MM. MM   M+M    :MM   M.M   MDM  M MM. M:              
-           .M .MM    M   ?M.M.   M.M: M7 M   M M. M  MM.M.             
-            MM.     M.   M  MN  ,M  M M   M..M  M M    MM             
-                    M.  M$  .M  .M  IMM    M8    MM           
-                     MMM     M. ~M   $      M     M           
-                     .7       MMM                                
-                               M                                 
-"""
-
 HEADER = '''
 {name} is a GPU accelerated program for MS2 spectral clustering.
 
@@ -134,8 +86,6 @@ OPTIONS = [
 
 # ====BEGIN OF CODE====
 def print_help():
-    create_template_file()
-    print('\n'.join(map(str.rstrip, MASCOT.split('\n'))))
     print(HEADER.format(name=NAME, namel=NAME.lower(), sessext=FILE_EXTENSION_SESSION))
     print('Options:\n')
     for o in OPTIONS:
@@ -145,6 +95,13 @@ def print_help():
             else: print(' '*29, i, sep='')
         print()
     print()
+
+    try:
+        create_template_file()
+    except Exception as e:
+        print('\033[33mFailed to create a configuration template file on the current working directory: {}\033[0m'
+              .format(e.__class__.__name__))
+
     return
 # ====END OF CODE====
 

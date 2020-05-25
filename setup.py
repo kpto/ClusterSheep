@@ -71,7 +71,7 @@ setup(
     author='Paul TO',
     author_email='kpto@connect.ust.hk',
     url='https://github.com/kpto/ClusterSheep',
-    description='CUDA accelerated MS2 spectral clustering.',
+    description='A CUDA accelerated MS2 spectral clustering and cluster visualization software.',
     long_description=open('README.md', encoding='utf-8').read(),
     long_description_content_type='text/markdown',
     license='LGPL',

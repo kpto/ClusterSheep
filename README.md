@@ -1,6 +1,6 @@
+![mascot-with-name](https://github.com/kpto/ClusterSheep/raw/release/docs/mascot-with-name.svg)
+
 <div align="center">
-    <h1 style="text-align:center">ClusterSheep</h1>
-    <img src="docs/mascot.png" />
     <div>
         <a href="https://dev.azure.com/kpto/ClusterSheep/_build?definitionId=4">
          <img src="https://img.shields.io/azure-devops/build/kpto/40d98952-bda4-49c3-b81b-d1f9debdfae7/4/release" /></a>
@@ -13,9 +13,7 @@
     </div>
 </div>
 
-
 ---
-
 
 * [Features](#features)
 * [Overview](#overview)
@@ -29,7 +27,12 @@
 * [Usage](#usage)
     * [Quick start](#usage-quick-start)
     * [Visualization](#usage-visualization)
+        * [Cluster viewer](#usage-visualization-cluster-viewer)
+        * [Spectrum plotting](#usage-visualization-spectrum-plotting)
     * [Advanced](#usage-advanced)
+        * [Configuration](usage-advanced-configuration)
+        * [Material preparation](usage-advanced-material-preparation)
+        * [Python interactive console](usage-advanced-python-interactive-console)
     * [Cluster refinement](#usage-cluster-refinement)
 * [Limitation](#limitation)
 * [Future](#future)
@@ -41,10 +44,10 @@
 ## Features
 
 * Fast: CUDA accelerated, GPU (GTX 1070) performs pairwise similarity computation ~45 times faster than CPU (i7 6700K).
-* Visualization: Powered by [graph-tool](https://graph-tool.skewed.de) and [matplotlib](https://matplotlib.org/), clusters are intuitively visualized using force directed drawing. Nodes can be picked to be plotted and peaks of peptide fragment ions are colored if the spectrum is identified. Detail on section [Visualization](#visualization).
+* Visualization: Powered by [graph-tool](https://graph-tool.skewed.de) and [matplotlib](https://matplotlib.org/), clusters are intuitively visualized using force directed drawing. Nodes can be picked to be plotted and peaks of peptide fragment ions are colored if the spectrum is identified. Detail on section [Visualization](#usage-visualization).
 * Multi-GPUs: Clustering with multiple GPUs is supported with almost no performance loss (>90% efficiency).
 * Big data ready: ClusterSheep is written with big data in mind from the beginning, memory-map is heavily used to reduce memory usage and allow handling of large data set.
-* Easy post-processing: Clusters and peptide identifications are stored in [SQLite](https://www.sqlite.org/index.html) database file for easy access. Output data can be manipulated easily with the built-in Python interactive console. Detail on section [Interactive console](#interactive-console).
+* Easy post-processing: Clusters and peptide identifications are stored in [SQLite](https://www.sqlite.org/index.html) database file for easy access. Output data can be manipulated easily with the built-in Python interactive console. Detail on section [Python interactive console](#usage-advanced-python-interactive-console).
 * Traceability: Logging is important for research, ClusterSheep aggressively logs everything of a clustering session from its beginning to its last use, including configuration and all commands executed in cluster viewer and Python console.
 
 
@@ -55,13 +58,13 @@ ClusterSheep is a CUDA accelerated clustering software of MS2 spectra data gener
 
 1. ClusterSheep doesn't combine spectra, it outputs the resulted groups which are called clusters and also the pairwise similarity scores of similar spectra, represented as edges.
 
-2. Unlike SpectraST and many existing clustering software which avoid pairwise similarity computation by producing a middle spectrum and compare candidate spectra with it only, ClusterSheep genuinely compute similarities of all enumerable pairs of spectra, as long as the precursor mass difference of a pair falls within the tolerance (1.1 by default).
+2. Unlike SpectraST and many existing clustering software which avoid pairwise similarity computation by producing a middle spectrum and compare candidate spectra with it only, ClusterSheep genuinely compute similarities of all pairs of spectra where the precursor mass difference of the pair is within the tolerance (1.1 by default).
 
 3. ClusterSheep is designed to run on GPU instead of CPU. The computing power provided by GPUs makes pairwise computation possible within an acceptable time.
 
-ClusterSheep is meant to improve the [spectral library building](https://en.wikipedia.org/wiki/Peptide_spectral_library) process. By genuinely computing pairwise similarities, the resulted cluster structure may reveal bridging (such as chimeric spectrum) of sub-clusters that have long been incorrectly merged during library building. Also, spectral clustering provides a middle step of updatable library building. New experiment data can be incorporated into existing clusters easily without re-computing old data. Though this has not yet been implemented in ClusterSheep.
+ClusterSheep is designed to improve the [spectral library building](https://en.wikipedia.org/wiki/Peptide_spectral_library) process. By genuinely computing pairwise similarities, the resulted cluster structure may reveal bridging (such as chimeric spectrum) of sub-clusters that have long been incorrectly merged during library building. Also, spectral clustering provides a middle step of updatable library building. New experiment data can be incorporated into existing clusters easily without re-computing old data. Though this has not yet been implemented in ClusterSheep.
 
-ClusterSheep is written by Paul TO and supervised by Prof. Henry LAM, the author of SpectraST.
+ClusterSheep is written by Paul TO and supervised by [Prof. Henry LAM](https://facultyprofiles.ust.hk/profiles.php?profile=henry-hei-ning-lam-kehlam), the author of SpectraST.
 
 <a name="prerequisites"></a>
 ## Prerequisites
@@ -73,6 +76,7 @@ ClusterSheep is written by Paul TO and supervised by Prof. Henry LAM, the author
 * [NVIDIA Driver](https://www.nvidia.com/Download/index.aspx)
 * [CUDA Toolkit](https://developer.nvidia.com/cuda-toolkit)
 * [graph-tool](https://graph-tool.skewed.de)
+* [matplotlib](https://matplotlib.org)
 * [pycuda](https://pypi.org/project/pycuda)
 * [pyopenms](https://pypi.org/project/pyopenms)
 
@@ -116,7 +120,7 @@ docker run -ti --rm --gpus all -u user -w /home/user -e DISPLAY=$DISPLAY -v /tmp
 <a name="installation-pypi"></a>
 ### PyPI
 
-ClusterSheep is available via PyPI, with all basic dependencies listed in section [Prerequisites](#prerequisites) installed, ClusterSheep can be installed with the following command:
+ClusterSheep is available via PyPI, with all [basic dependencies](#prerequisites-base) installed, ClusterSheep can be installed with the following command:
 
 ```
 pip install ClusterSheep
@@ -125,7 +129,7 @@ pip install ClusterSheep
 <a name="flow"></a>
 ## Flow
 
-![flow](docs/flow.svg)
+![flow](https://github.com/kpto/ClusterSheep/raw/release/docs/flow.svg)
 
 The above is the flow of ClusterSheep. To begin with a new session, you need to name the session and supply MS experiment files and identification files (left side of the flow). ClusterSheep supports `mzXML`, `mzML` and `pep.xml` from either [PeptideProphet™](http://peptideprophet.sourceforge.net/) or InterProphet.
 
@@ -133,20 +137,20 @@ ClusterSheep will run clustering on provided data and produce a finished session
 
 1. Create a new clustering session, store the session in a `cssess` file and create a logging file `cslogg`. All logging in the future will be written into it.
 2. Build an index of all spectra which is stored in a `csindx` file.
-3. [Rank-transform](https://pubmed.ncbi.nlm.nih.gov/24115759/) all spectra and store the transformed spectra in a `csrksp` file.
-4. If any identification file is supplied, read all identifications and store them in a `csiden` file for future searching.
-5. Pairwise similarity computation of all rank-transformed spectra where the precursor mass difference of the spectrum pair is within the tolerance. If the similarity score is highly that the threshold, an edge and the score are recorded. This step is accelerated by CUDA.
+3. Clarify (binning, precursor peaks removal and mz range clipping) and [rank-transform](https://pubmed.ncbi.nlm.nih.gov/24115759/) all spectra and store the transformed spectra in a `csrksp` file.
+4. If any identification file is supplied, import identifications with probability equal or higher than the threshold and store them in a `csiden` file for future searching.
+5. Pairwise similarity computation of all rank-transformed spectra where the precursor mass difference of the spectrum pair is within the tolerance. If the similarity score is higher than the threshold, an edge with the score are recorded. This step is accelerated by GPU.
 6. Searching connected components from edges generated above. Each cluster is presented as a graph object of graph-tool. Graphs are stored in a `csclut` file.
-7. Cluster refinement, optional, detail on section [Cluster refinement](#usage-clustering-cluster-refinement).
+7. Cluster refinement, optional, detail on section [Cluster refinement](#usage-cluster-refinement).
 
 Both `csiden` and `csclut` are just [SQLite](https://www.sqlite.org/index.html) database files, they can be opened by any SQLite browser, for example, [DB Browser for SQLite](https://sqlitebrowser.org/).
 
-Then, you can visualize the result by loading a finished session (right side of the flow). See section [Visualization](#visualization) for detail.
+Then, you can visualize the result by loading a finished session (right side of the flow). See section [Visualization](#usage-visualization) for detail.
 
 <a name="usage"></a>
 ## Usage
 
-After installation, an entry point should be created so that ClusterSheep can be executed by simply executing command `clustersheep`. ClusterSheep assumes the current working directory to be the output directory, all files of a clustering session will be generated on the directory where you start ClusterSheep.
+After installation, an entry point should be created so that ClusterSheep can be executed by simply executing command `clustersheep`. ClusterSheep assumes the current working directory to be the output directory, all files of a new clustering session will be generated on the directory where you start ClusterSheep.
 
 Here are some example commands of auxiliary functions.
 
@@ -156,7 +160,7 @@ Here are some example commands of auxiliary functions.
 clustersheep
 ```
 
-With no parameter, ClusterSheep outputs an ascii drawing of the mascot of ClusterSheep and a list of all available parameters. A configuration template file named `config_template` will be generated. This file contains all possible settings of ClusterSheep and the detail explanation of each setting.
+With no parameter, ClusterSheep outputs a list of all available parameters. A configuration template file named `config_template` will be generated. This file contains all available parameters of ClusterSheep and the detail explanation of each setting.
 
 <br/>
 
@@ -224,6 +228,9 @@ where `list.txt` has following content:
 <a name="usage-visualization"></a>
 ### Visualization
 
+<a name="usage-visualization-cluster-viewer"></a>
+#### Cluster viewer
+
 After the finish of a clustering session, you can visualize clusters and spectra. Remember that spectrum plotting needs to read input MS experiment files, don't move your input files after a clustering session if you want to plot spectra. To visualize cluster, execute ClusterSheep with `--load-session=` and with `--stay-interactive` option, like below:
 
 ```
@@ -232,9 +239,12 @@ clustersheep --load-session=/path/to/mysession.cssess --stay-interactive
 
 The above command will load the session and stay in cluster viewer where you can visualize a cluster by inputting its id. The cluster is drawn using [force-directed graph drawing](https://en.wikipedia.org/wiki/Force-directed_graph_drawing) algorithm. Under this algorithm, spectra that form more edges to its neighbours stay closed to each other while spectra that form less edges repel each other. The algorithm makes sub-clusters can be visually identified, for example, the cluster below.
 
-![mixed-cluster](docs/mixed-cluster.png)
+![mixed-cluster](https://github.com/kpto/ClusterSheep/raw/release/docs/mixed-cluster.png)
 
-In the above drawing, dots are nodes/spectra. An edge between two nodes means they have a similarity score higher than the threshold. If identification files are provided, identified spectra with probability higher than the threshold (0.9 by default, changeable in config file) are colored. Spectra with the same identification are colored with the same colour. Black means no identification.
+In the above drawing, dots are nodes/spectra. An edge between two nodes means they have a similarity score higher than the threshold. If identifications are imported, identified spectra are colored. Spectra with the same identification are colored with the same colour. Black means no identification.
+
+<a name="usage-visualization-spectrum-plotting"></a>
+#### Spectrum plotting
 
 When you hover your mouse point over a node, you can press the following keys on your keyboard for different command:
 
@@ -246,14 +256,17 @@ When you hover your mouse point over a node, you can press the following keys on
 
 For example, to plot a spectrum in a cluster, hover your mouse point over a node, press `T` button on your keyboard to tag the spectrum, then press `D` button to draw. The plot of the picked spectrum is shown on a new window. You can tag two spectra to plot them against each other like the image below. By default, spectra are plotted verificatively, meaning that the plotted spectrum is post-processed with mz range clipping, precursor peak removal and rank-transformation with the same configuration value used in clustering. If you want to plot the raw spectrum recorded in MS experiment files, press `V` to turn off verificative plotting or press again to turn it on again.
 
-If the plotted spectrum is identified, the peptide sequence will be printed in the graph. Also, peaks of fragment ions are highlighted, as shown below. The theoretical spectrum referenced is generated using pyopenms. If two spectra are tagged and identifications swapping is turned on by pressing `I`, their identifications will be swapped and peaks are highlighted using the swapped identification.
+If the plotted spectrum is identified, the peptide sequence and the probability will be printed in the graph. Also, peaks of fragment ions are highlighted, as shown below. The theoretical spectrum referenced is generated using pyopenms. If two spectra are tagged and identifications swapping is turned on by pressing `I`, their identifications will be swapped and peaks are highlighted using the swapped identification.
 
-![spectrum-plot](docs/spectrum-plot.png)
+![spectrum-plot](https://github.com/kpto/ClusterSheep/raw/release/docs/spectrum-plot.png)
 
 <a name="usage-advanced"></a>
 ### Advanced
 
-There is a set of default values of clustering related configuration. For example, the precursor mass difference tolerance which is `1.1` and dot product threshold which is `0.7`. A comparison involving two spectra with their precursor mass difference larger than the tolerance is skipped as they are assumed to be different identity. An edge of two spectra is recorded only if the similarity score is higher than the threshold. To override these settings, you can provide a config file like below:
+<a name="usage-advanced-configuration"></a>
+#### Configuration
+
+There is a set of default values of clustering related parameters. For example, the precursor mass difference tolerance which is `1.1` and dot product threshold which is `0.7`. A comparison involving two spectra with their precursor mass difference larger than the tolerance is skipped as they are assumed to have different identity. An edge of two spectra is recorded only if the similarity score is higher than the threshold. To override these parameters, you can provide a configuration file like below:
 
 ```
 clustersheep --name=mysession --config=/path/to/the/config-file.txt --file-list=/path/to/the/list.txt
@@ -266,7 +279,16 @@ cg_precursor_tolerance = 2.0
 cg_dot_product_threshold = 0.6
 ```
 
-The above content changes the precursor mass difference to `2.0` and the dot product threshold to `0.6`. For more available parameters, generates a config template file by executing ClusterSheep with no parameter, as shown in section [Usage](#usage). The config template includes a detail explanation of all parameters.
+The above content changes the precursor mass difference to `2.0` and the dot product threshold to `0.6`. For more available parameters, generates a configuration template file by executing ClusterSheep with no parameter, as shown in section [Usage](#usage). The configuration template includes a detail explanation of all parameters.
+
+Since ClusterSheep is built with traceable, the configuration used is recorded in a clustering session. You can use option `--print-session` to print the parameter values of it, like below:
+
+```
+clustersheep --load-session=/path/to/mysession.cssess --print-session
+```
+
+<a name="usage-advanced-material-preparation"></a>
+#### Material preparation
 
 In the case that you need to perform the same experiment multiple times but with different configuration, you may want to avoid the duplicated generations of index file `csindx` and rank-transformed spectra file `csrksp` to save time and disk space usage. To do so, you can run a new clustering session just to prepare the intermediate materials by using the option `--preparation-only`, like below:
 
@@ -280,13 +302,10 @@ The above command will create an unfinished session. If you load this session, C
 clustersheep --load-session=/path/to/prepsession.cssess --fork=forkedsession --config=/path/to/config.txt
 ```
 
-The above command will create a new session that inherits everything from the loaded session, in this case, the preparation session. The prepared materials are also inherited by creating symbolic links to those files. By forking the preparation session with different config file supplied, one can reuse the prepared material and run clustering on it with different configuration, without wasting time and disk space on duplicated indexing and rank-transformation.
+The above command will create a new session named by the value supplied by option `--fork=` (in the above example, `forkedsession`). The created session inherits everything from the loaded session including the prepared materials (index, rank-transformed spectra, logging and etc) by creating symbolic links to those files. By forking the preparation session with different configuration file, one can reuse the prepared material and run clustering on it with different configuration.
 
-Since ClusterSheep is built with traceable, the configuration values used are all recorded in a clustering session. You can use option `--print-session` to print these values, like below:
-
-```
-clustersheep --load-session=/path/to/mysession.cssess --print-session
-```
+<a name="usage-advanced-python-interactive-console"></a>
+#### Python interactive console
 
 If you want to use Python to post-process a clustering session, you can turn on developer mode and enter Python interactive console from cluster viewer. To do so, load the session with option `--dev-mode` first:
 
@@ -299,14 +318,16 @@ You will enter cluster viewer as usual, but within developer mode, you can type 
 <a name="usage-cluster-refinement"></a>
 ## Cluster refinement
 
-Cluster refinement is a demonstrative feature to show the value of cluster structure. By computing [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) of each node, it identifies bridges within a cluster and remove them to produce clearer clusters. Using the same example cluster [shown above](#usage-visualization), two sub-clusters having different peptide identifications are bridged by the middle node. You can expect the betweenness centrality of that node will be a lot higher than other nodes and thus the node is detected and removed, releasing the two sub-clusters.
+Cluster refinement is a demonstrative feature to show the value of cluster structure. By computing [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) of each node, it identifies bridges within a cluster and remove them to produce clearer clusters. Using the same example cluster [shown above](#usage-visualization-cluster-viewer), two sub-clusters having different peptide identifications are bridged by the middle node. You can expect the betweenness centrality of that node will be a lot higher than other nodes and thus the node is detected and removed, releasing the two sub-clusters.
 
-Since this feature is not officially a part of ClusterSheep, by default it is turned off. You can turn it on in a config file with parameter `cr_outlier_threshold`, see section [Advanced](#usage-clustering-advanced) for detail about config file.
+Since this feature is not officially a part of ClusterSheep, by default it is turned off. You can turn it on in a configuration file with parameter `cr_outlier_threshold`, see section [Configuration](#usage-clustering-advanced-configuration) for detail about configuration file.
 
 <a name="limitation"></a>
 ## Limitation
 
-Although ClusterSheep is built with big data in mind, the graph building process after pairwise similarity computation may still take tremendous amount of ram if there is too many spectra are clustered together. This is because ClusterSheep depends on graph-tool for all graph related processing and graph-tool does not support memory-mapping. Depending on a third party package reduces the development time of ClusterSheep significantly, but ClusterSheep will need a customized graph processing component that guarantees low memory use in the future. Before this happens, ClusterSheep is not truly a software that can handle big data.
+Although ClusterSheep is built with big data in mind, the graph building process after pairwise similarity computation may still take unhandleable amount of ram if a cluster contains too many spectra. This is because ClusterSheep depends on graph-tool for all graph related processing and graph-tool does not support memory-mapping. Depending on a third party package reduces the development time of ClusterSheep significantly, but ClusterSheep will need a customized graph processing component that guarantees low memory use in the future. Before this happens, ClusterSheep is not truly a software that can handle big data.
+
+If the value of dot product threshold is too low, all spectra will be clustered together and form a gigantic cluster. As long as the value is reasonable, clustering millions of spectra should not be a problem.
 
 <a name="future"></a>
 ## Future
