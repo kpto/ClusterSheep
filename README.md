@@ -30,9 +30,9 @@
         * [Cluster viewer](#usage-visualization-cluster-viewer)
         * [Spectrum plotting](#usage-visualization-spectrum-plotting)
     * [Advanced](#usage-advanced)
-        * [Configuration](usage-advanced-configuration)
-        * [Material preparation](usage-advanced-material-preparation)
-        * [Python interactive console](usage-advanced-python-interactive-console)
+        * [Configuration](#usage-advanced-configuration)
+        * [Material preparation](#usage-advanced-material-preparation)
+        * [Python interactive console](#usage-advanced-python-interactive-console)
     * [Cluster refinement](#usage-cluster-refinement)
 * [Limitation](#limitation)
 * [Future](#future)
@@ -320,7 +320,7 @@ You will enter cluster viewer as usual, but within developer mode, you can type 
 
 Cluster refinement is a demonstrative feature to show the value of cluster structure. By computing [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) of each node, it identifies bridges within a cluster and remove them to produce clearer clusters. Using the same example cluster [shown above](#usage-visualization-cluster-viewer), two sub-clusters having different peptide identifications are bridged by the middle node. You can expect the betweenness centrality of that node will be a lot higher than other nodes and thus the node is detected and removed, releasing the two sub-clusters.
 
-Since this feature is not officially a part of ClusterSheep, by default it is turned off. You can turn it on in a configuration file with parameter `cr_outlier_threshold`, see section [Configuration](#usage-clustering-advanced-configuration) for detail about configuration file.
+Since this feature is not officially a part of ClusterSheep, by default it is turned off. You can turn it on in a configuration file with parameter `cr_outlier_threshold`, see section [Configuration](#usage-advanced-configuration) for detail about configuration file.
 
 <a name="limitation"></a>
 ## Limitation
