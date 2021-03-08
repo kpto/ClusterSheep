@@ -18,6 +18,7 @@ Desciption of this module:
 # ====BEGIN OF MODULE IMPORT====
 import logging
 import pickle
+import io
 import os
 import multiprocessing as mp
 from threading import Thread
@@ -25,6 +26,7 @@ import time
 import ctypes
 import sys
 import sqlite3
+import numpy as np
 
 from ClusterSheep.envr.session import get_session
 from ClusterSheep.prcs.parallel.logging_setup import logging_setup
@@ -50,7 +52,7 @@ except ImportError:
 
 
 # ====BEGIN OF CODE====
-def export_cluster(file, num_of_threads=os.cpu_count()):
+def export_cluster(file, num_of_threads=os.cpu_count(), specific_cluster=None):
     _refresh_session()
 
     processes = []
@@ -61,12 +63,25 @@ def export_cluster(file, num_of_threads=os.cpu_count()):
     exit_signal = mp.Value(ctypes.c_bool, False)
     finish_count = mp.Value(ctypes.c_uint64, 0)
 
+    if not file.exists():
+        with file.open('w', encoding='utf-8') as fp:
+            fp.write(_get_header_line('Columns'))
+            fp.write(_get_header_line('Cluster'))
+            fp.write('ID\tNum of nodes\tNum of edges\tNum of identifications\t' +
+                     'Major identification\tIdentified ratio\tAverage precursor mass\n')
+            fp.write(_get_header_line('Nodes'))
+            fp.write('ID\tFile\tScan num\tIdentification\tProbability\n')
+            fp.write(_get_header_line('Edges'))
+            fp.write('ID of source\tID of target\tDot product\n')
+            fp.write('\n' + _get_header_line('Clusters'))
+
+    if specific_cluster:
+        _write_cluster(None, session.clusters.cursor, specific_cluster, file, log_lock, read_lock, merge_lock)
+        return
+
     session.clusters.connect()
     num_clusters = session.clusters.cursor.execute('SELECT "num_of_clusters" FROM "metadata"').fetchone()[0]
     session.clusters.disconnect()
-
-    if not file.exists():
-        file.touch()
 
     for pid in range(num_of_threads):
         processes.append(mp.Process(target=_worker, args=(pid, file, num_clusters, finish_count, log_lock,
@@ -177,47 +192,58 @@ def _write_cluster(pid, clusters_cur, cluster_id, file, log_lock, read_lock, mer
         cluster = clusters_cur.execute('SELECT * FROM "clusters" WHERE "cluster_id"=?',
                                        (cluster_id,)).fetchone()
     if not cluster:
-        wrn_msg = 'Subprocess {}: Cluster with id "{}" does not exist.'.format(pid, cluster_id)
+        header = 'Subprocess {}: '.format(pid) if pid is not None else ''
+        wrn_msg = '{}Cluster with id "{}" does not exist.'.format(header, cluster_id)
         with log_lock:
             logging.warning(wrn_msg)
         return
 
     graph = pickle.loads(cluster[-1])
-    description = ('# cluster_id={}; num_nodes={}; num_edges={}; num_idens={}; '
-                   'major_iden={}; iden_ratio={}; pre_mass_avg={}\n'.format(*(cluster[:-1])))
-    files = session.ms_exp_files[session.internal_index.file_id[graph.vp['iid'].a]]
-    native_ids = session.internal_index.native_id[graph.vp['iid'].a]
+    internal_ids = graph.vp['iid'].a
+    files = session.ms_exp_files[session.internal_index.file_id[internal_ids]]
+    native_ids = session.internal_index.native_id[internal_ids]
     if 'ide' in graph.gp:
         idens = graph.gp['ide']
         idens[-1] = 'None'
         iden_ids = graph.vp['ide'].a
         prb = graph.vp['prb'].a
-        with merge_lock:
-            with file.open('a', encoding='utf-8') as fp:
-                fp.write(description)
-                lines = []
-                for i in range(graph.num_vertices()):
-                    lines.append((str(files[i]), str(native_ids[i]), idens[iden_ids[i]], str(prb[i])))
-                lines = sorted(lines, key=lambda x: x[1])
-                lines = sorted(lines, key=lambda x: x[0])
-                fp.writelines(map(_join_elements, lines))
-                fp.write('\n')
+        iden_provider = lambda i: idens[iden_ids[i]]
+        prb_provider = lambda i: prb[i]
     else:
-        with merge_lock:
-            with file.open('a', encoding='utf-8') as fp:
-                fp.write(description)
-                lines = []
-                for i in range(graph.num_vertices()):
-                    lines.append((str(files[i]), str(native_ids[i])))
-                lines = sorted(lines, key=lambda x: x[1])
-                lines = sorted(lines, key=lambda x: x[0])
-                fp.writelines(map(_join_elements, lines))
-                fp.write('\n')
+        iden_provider = lambda i: None
+        prb_provider = lambda i: None
+    with merge_lock:
+        with file.open('a', encoding='utf-8') as fp:
+            fp.write(_get_header_line('Cluster'))
+            fp.write(_join_elements(cluster[:-1]))
+            fp.write(_get_header_line('Nodes'))
+            lines = []
+            for i in range(graph.num_vertices()):
+                lines.append((internal_ids[i], files[i], native_ids[i], iden_provider(i), prb_provider(i)))
+            lines = sorted(lines, key=lambda x: x[2])
+            lines = sorted(lines, key=lambda x: x[1])
+            fp.writelines(map(_join_elements, lines))
+            fp.write(_get_header_line('Edges'))
+            edges = graph.get_edges()
+            roted = np.rot90(edges)
+            sa = np.empty(len(edges), dtype=[('s', np.uint64), ('t', np.uint64), ('dp', np.float32)])
+            sa['s'] = internal_ids[roted[1]]
+            sa['t'] = internal_ids[roted[0]]
+            sa['dp'] = graph.ep['dps'].a
+            sio = io.StringIO()
+            np.savetxt(sio, sa, fmt=['%u', '%u', '%.8f'], delimiter='\t')
+            sio.seek(0)
+            fp.write(sio.read())
+            fp.write('\n')
     return
 
 
+def _get_header_line(header):
+    return '# {}\n'.format(header)
+
+
 def _join_elements(line):
-    return '\t'.join(line) + '\n'
+    return '\t'.join(map(str, line)) + '\n'
 
 
 def _refresh_session():

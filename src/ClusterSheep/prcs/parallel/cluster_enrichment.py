@@ -52,7 +52,7 @@ except ImportError:
 
 
 # ====BEGIN OF CODE====
-def enrich_clusters(update=False, num_of_threads=os.cpu_count()):
+def enrich_clusters(update=False, num_of_threads=os.cpu_count(), specific_cluster=None):
     _refresh_session()
     if not session.iden_lut:
         logging.info('No identification lookup table is mounted, cannot proceed.')
@@ -64,6 +64,20 @@ def enrich_clusters(update=False, num_of_threads=os.cpu_count()):
     merge_lock = mp.Lock()
     exit_signal = mp.Value(ctypes.c_bool, False)
     finish_count = mp.Value(ctypes.c_uint64, 1)
+
+    if specific_cluster:
+        clusters_conn = sqlite3.connect(str(session.clusters.file_path))
+        clusters_cur = clusters_conn.cursor()
+        session.iden_lut.connect()
+        clusters_cur.execute('SELECT "cluster_id", "num_idens", "pickled" FROM "clusters" WHERE "cluster_id" = ?', (specific_cluster,))
+        cluster = clusters_cur.fetchone()
+        data_no_iden = []
+        data_with_iden = []
+        bytes_count = 0
+        _add_iden_stat(cluster, data_no_iden, data_with_iden, bytes_count, update, iden_read_lock)
+        _push(None, clusters_conn, clusters_cur, data_no_iden, data_with_iden, log_lock, merge_lock)
+        clusters_conn.close()
+        return
 
     session.clusters.connect()
     num_clusters = session.clusters.cursor.execute('SELECT "num_of_clusters" FROM "metadata"').fetchone()[0]
@@ -268,7 +282,8 @@ def _add_iden_stat(cluster, data_no_iden, data_with_iden, bytes_count, update, i
 def _push(pid, conn, cur, data_no_iden, data_with_iden, log_lock, merge_lock):
     if len(data_no_iden) + len(data_with_iden) == 0: return
     with log_lock:
-        logging.debug('Subprocess {}: Pushing {} clusters'.format(pid, len(data_no_iden) + len(data_with_iden)))
+        header = 'Subprocess {}: '.format(pid) if pid is not None else ''
+        logging.debug('{}Pushing {} clusters'.format(header, len(data_no_iden) + len(data_with_iden)))
     with merge_lock:
         cur.execute('BEGIN TRANSACTION')
         if len(data_no_iden) > 0:
