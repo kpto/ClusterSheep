@@ -26,9 +26,10 @@
 * [Flow](#flow)
 * [Usage](#usage)
     * [Quick start](#usage-quick-start)
-    * [Visualization](#usage-visualization)
-        * [Cluster viewer](#usage-visualization-cluster-viewer)
-        * [Spectrum plotting](#usage-visualization-spectrum-plotting)
+    * [Cluster viewer](#usage-cluster-viewer)
+        * [Visualization](#usage-cluster-viewer-cluster-visualization)
+        * [Spectrum plotting](#usage-cluster-viewer-spectrum-plotting)
+        * [Export](#usage-cluster-viewer-export)
     * [Advanced](#usage-advanced)
         * [Configuration](#usage-advanced-configuration)
         * [Material preparation](#usage-advanced-material-preparation)
@@ -44,7 +45,7 @@
 ## Features
 
 * Fast: CUDA accelerated, GPU (GTX 1070) performs pairwise similarity computation ~45 times faster than CPU (i7 6700K).
-* Visualization: Powered by [graph-tool](https://graph-tool.skewed.de) and [matplotlib](https://matplotlib.org/), clusters are intuitively visualized using force directed drawing. Nodes can be picked to be plotted and peaks of peptide fragment ions are colored if the spectrum is identified. Detail on section [Visualization](#usage-visualization).
+* Visualization: Powered by [graph-tool](https://graph-tool.skewed.de) and [matplotlib](https://matplotlib.org/), clusters are intuitively visualized using force directed drawing. Nodes can be picked to be plotted and peaks of peptide fragment ions are colored if the spectrum is identified. Detail on section [Cluster viewer](#usage-cluster-viewer).
 * Multi-GPUs: Clustering with multiple GPUs is supported with almost no performance loss (>90% efficiency).
 * Big data ready: ClusterSheep is written with big data in mind from the beginning, memory-map is heavily used to reduce memory usage and allow handling of large data set.
 * Easy post-processing: Clusters and peptide identifications are stored in [SQLite](https://www.sqlite.org/index.html) database file for easy access. Output data can be manipulated easily with the built-in Python interactive console. Detail on section [Python interactive console](#usage-advanced-python-interactive-console).
@@ -145,7 +146,7 @@ ClusterSheep will run clustering on provided data and produce a finished session
 
 Both `csiden` and `csclut` are just [SQLite](https://www.sqlite.org/index.html) database files, they can be opened by any SQLite browser, for example, [DB Browser for SQLite](https://sqlitebrowser.org/).
 
-Then, you can visualize the result by loading a finished session (right side of the flow). See section [Visualization](#usage-visualization) for detail.
+Then, you can visualize the result by loading a finished session (right side of the flow). See section [Cluster viewer](#usage-cluster-viewer) for detail.
 
 <a name="usage"></a>
 ## Usage
@@ -225,28 +226,36 @@ where `list.txt` has following content:
           ⋮
 ```
 
-<a name="usage-visualization"></a>
-### Visualization
+<a name="usage-cluster-viewer"></a>
+### Cluster viewer
 
-<a name="usage-visualization-cluster-viewer"></a>
-#### Cluster viewer
-
-After the finish of a clustering session, you can visualize clusters and spectra. Remember that spectrum plotting needs to read input MS experiment files, don't move your input files after a clustering session if you want to plot spectra. To visualize cluster, execute ClusterSheep with `--load-session=` and with `--stay-interactive` option, like below:
+After the finish of a clustering session, you can explore clusters in cluster viewer. To enter cluster viewer, execute ClusterSheep with `--stay-interactive` option, like below:
 
 ```
 clustersheep --load-session=/path/to/mysession.cssess --stay-interactive
 ```
 
-The above command will load the session and stay in cluster viewer where you can visualize a cluster by inputting its id. The cluster is drawn using [force-directed graph drawing](https://en.wikipedia.org/wiki/Force-directed_graph_drawing) algorithm. Under this algorithm, spectra that form more edges to its neighbours stay closed to each other while spectra that form less edges repel each other. The algorithm makes sub-clusters can be visually identified, for example, the cluster below.
+for loading an existing session or
+
+```
+clustersheep --name=mysession --stay-interactive path-to-files
+```
+
+for creating a new session.
+
+<a name="usage-cluster-viewer-cluster-visualization"></a>
+#### Visualization
+
+Under cluster viewer, you can visualize a cluster by inputting its id. The cluster is drawn using [force-directed graph drawing](https://en.wikipedia.org/wiki/Force-directed_graph_drawing) algorithm. Under this algorithm, spectra that form more edges to its neighbours stay closed to each other while spectra that form less edges repel each other. The algorithm makes sub-clusters can be visually identified, for example, the cluster below.
 
 ![mixed-cluster](https://github.com/kpto/ClusterSheep/raw/release/docs/mixed-cluster.png)
 
 In the above drawing, dots are nodes/spectra. An edge between two nodes means they have a similarity score higher than the threshold. If identifications are imported, identified spectra are colored. Spectra with the same identification are colored with the same colour. Black means no identification.
 
-<a name="usage-visualization-spectrum-plotting"></a>
+<a name="usage-cluster-viewer-spectrum-plotting"></a>
 #### Spectrum plotting
 
-When you hover your mouse point over a node, you can press the following keys on your keyboard for different command:
+When a cluster is drawn, you can interact with spectra by hovering your mouse pointer over a node, then press the following keys on your keyboard for different command:
 
 * `T` to tag a spectrum.
 * `D` to draw tagged spectrum/spectrum pair.
@@ -259,6 +268,97 @@ For example, to plot a spectrum in a cluster, hover your mouse point over a node
 If the plotted spectrum is identified, the peptide sequence and the probability will be printed in the graph. Also, peaks of fragment ions are highlighted, as shown below. The theoretical spectrum referenced is generated using pyopenms. If two spectra are tagged and identifications swapping is turned on by pressing `I`, their identifications will be swapped and peaks are highlighted using the swapped identification.
 
 ![spectrum-plot](https://github.com/kpto/ClusterSheep/raw/release/docs/spectrum-plot.png)
+
+Spectra cannot be plotted if input MS experiment files are moved because spectra data is read from source files.
+
+<a name="usage-cluster-viewer-export"></a>
+#### Export
+
+Clusters can be exported by executing command `export` in cluster viewer. Information of nodes and edges will be written in a `Tab` delimited text file. If only a specific cluster is wanted, input the cluster ID (1000 for example) as argument like below:
+
+```
+export 1000
+```
+
+Or if you want to export all clusters, input argument `all`:
+
+```
+export all
+```
+
+File name can be specified by using `file=` argument:
+
+```
+export all file=path-to-destination
+```
+
+Before a cluster is exported, a process called `enrichment` is performed on that cluster first. This process append identification of all spectra in that cluster by searching the identification database to include such information in exported clusters. When exporting all clusters, such process will take a considerable time.
+
+The exported file is sectioned. Section headers have a prefix of `#` followed by the section name. Each section is explained below.
+
+```
+# Columns // Titles of columns, matching the Tab delimited columns in Clusters section
+    # Cluster
+    # Nodes
+    # Edges
+
+# Clusters // Begin of exported clusters
+    # Cluster
+        Cluster ID and meta data, as shown in columns section
+    # Nodes
+        List of spectra
+    # Edges
+        List of edges, ID is the internal ID which corresponds to the first column
+        of nodes section, NOT scan number
+        
+    # Cluster
+    # Nodes
+    # Edges
+    
+        ⋮
+```
+
+The following is an actual example:
+
+```
+# Columns
+# Cluster
+ID	Num of nodes	Num of edges	Num of identifications	Major identification	Identified ratio	Average precursor mass
+# Nodes
+ID	File	Scan num	Identification	Probability
+# Edges
+ID of source	ID of target	Dot product
+
+# Clusters
+# Cluster
+5	4	6	1	n[33]SGK[160]VDVINAAK[160]/3	1.0	399.9366149902344
+# Nodes
+2950	/path/to/ms-experiment-file-1.mzXML	2378	n[33]SGK[160]VDVINAAK[160]/3	0.998657
+2951	/path/to/ms-experiment-file-1.mzXML	2446	n[33]SGK[160]VDVINAAK[160]/3	0.99567
+2953	/path/to/ms-experiment-file-2.mzXML	2758	n[33]SGK[160]VDVINAAK[160]/3	0.999604
+2952	/path/to/ms-experiment-file-2.mzXML	2825	n[33]SGK[160]VDVINAAK[160]/3	0.999494
+# Edges
+2950	2951	0.71452552
+2950	2952	0.72903901
+2950	2953	0.75207931
+2951	2952	0.77206755
+2951	2953	0.77758884
+2952	2953	0.82543987
+
+# Cluster
+7	3	2	0	None	0.0	402.2897033691406
+# Nodes
+3076	/path/to/ms-experiment-file-2.mzXML	7818	None	None
+3079	/path/to/ms-experiment-file-3.mzXML	7886	None	None
+3077	/path/to/ms-experiment-file-3.mzXML	7932	None	None
+# Edges
+3076	3077	0.81118226
+3077	3079	0.71993017
+
+    ⋮
+```
+
+Since export is done in parallel by multi-processing, clusters may not be written in order of cluster ID.
 
 <a name="usage-advanced"></a>
 ### Advanced
@@ -318,7 +418,7 @@ You will enter cluster viewer as usual, but within developer mode, you can type 
 <a name="usage-cluster-refinement"></a>
 ## Cluster refinement
 
-Cluster refinement is a demonstrative feature to show the value of cluster structure. By computing [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) of each node, it identifies bridges within a cluster and remove them to produce clearer clusters. Using the same example cluster [shown above](#usage-visualization-cluster-viewer), two sub-clusters having different peptide identifications are bridged by the middle node. You can expect the betweenness centrality of that node will be a lot higher than other nodes and thus the node is detected and removed, releasing the two sub-clusters.
+Cluster refinement is a demonstrative feature to show the value of cluster structure. By computing [betweenness centrality](https://en.wikipedia.org/wiki/Betweenness_centrality) of each node, it identifies bridges within a cluster and remove them to produce clearer clusters. Using the same example cluster [shown above](#usage-cluster-viewer-cluster-visualization), two sub-clusters having different peptide identifications are bridged by the middle node. You can expect the betweenness centrality of that node will be a lot higher than other nodes and thus the node is detected and removed, releasing the two sub-clusters.
 
 Since this feature is not officially a part of ClusterSheep, by default it is turned off. You can turn it on in a configuration file with parameter `cr_outlier_threshold`, see section [Configuration](#usage-advanced-configuration) for detail about configuration file.
 
