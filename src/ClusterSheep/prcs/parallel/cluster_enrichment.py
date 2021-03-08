@@ -60,7 +60,6 @@ def enrich_clusters(update=False, num_of_threads=os.cpu_count()):
     processes = []
     log_lock = mp.Lock()
     count_lock = mp.Lock()
-    read_lock = mp.Lock()
     iden_read_lock = mp.Lock()
     merge_lock = mp.Lock()
     exit_signal = mp.Value(ctypes.c_bool, False)
@@ -76,7 +75,7 @@ def enrich_clusters(update=False, num_of_threads=os.cpu_count()):
     num_of_threads = num_of_threads if len(ranges) == num_of_threads else len(ranges)
     for pid in range(num_of_threads):
         processes.append(mp.Process(target=_worker, args=(pid, update, ranges[pid], finish_count, log_lock,
-                                                          count_lock, read_lock, iden_read_lock, merge_lock, exit_signal)))
+                                                          count_lock, iden_read_lock, merge_lock, exit_signal)))
     reporter = Thread(target=_reporter, args=(finish_count, num_clusters, log_lock, exit_signal))
 
     logging.info('......Start cluster enrichment with {} subprocesses......'.format(num_of_threads))
@@ -141,7 +140,7 @@ def _reporter(finish_count, num_clusters, log_lock, exit_signal):
     return
 
 
-def _worker(pid, update, range_, finish_count, log_lock, count_lock, read_lock, iden_read_lock, merge_lock, exit_signal):
+def _worker(pid, update, range_, finish_count, log_lock, count_lock, iden_read_lock, merge_lock, exit_signal):
     try:
         logging_setup()
         with log_lock:
@@ -151,9 +150,7 @@ def _worker(pid, update, range_, finish_count, log_lock, count_lock, read_lock, 
         clusters_conn = sqlite3.connect(str(session.clusters.file_path))
         clusters_cur = clusters_conn.cursor()
         session.iden_lut.connect()
-        session.iden_lut.cursor.execute('BEGIN TRANSACTION')
-        with read_lock:
-            clusters_cur.execute('SELECT "cluster_id", "num_idens", "pickled" FROM "clusters" ORDER BY "rowid" LIMIT ? OFFSET ?',
+        clusters_cur.execute('SELECT "cluster_id", "num_idens", "pickled" FROM "clusters" ORDER BY "rowid" LIMIT ? OFFSET ?',
                                  (range_[1] - range_[0], range_[0]))
 
         bytes_count = 0
@@ -166,8 +163,7 @@ def _worker(pid, update, range_, finish_count, log_lock, count_lock, read_lock, 
                     logging.debug('Subprocess {}: Received exit signal, exits now.'.format(pid))
                 break
 
-            with read_lock:
-                cluster = clusters_cur.fetchone()
+            cluster = clusters_cur.fetchone()
             if cluster is None:
                 _push(pid, clusters_conn, clusters_cur, data_no_iden, data_with_iden, log_lock, merge_lock)
                 break

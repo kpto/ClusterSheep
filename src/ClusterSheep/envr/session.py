@@ -104,10 +104,8 @@ class Session:
 
     def save_session(self):
         logging.info('Saving session.')
-        session_file = Path.cwd().joinpath(_session.name + FILE_EXTENSION_SESSION)
-        if session_file.exists():
-            session_file.unlink()
-            session_file.touch()
+        self.delete_session_file()
+        self.session_file.touch()
         vars_ = dict()
         vars_['version'] = VERSION
         vars_['file_type'] = HEADER_LABEL_SESSION
@@ -119,7 +117,7 @@ class Session:
         vars_['iden_files'] = self.iden_files
         vars_['console_hist'] = self.console_hist
         vars_['viewer_hist'] = self.viewer_hist
-        with session_file.open('wb') as fp:
+        with self.session_file.open('wb') as fp:
             pickle.dump(vars_, fp)
         logging.debug('Session saved.')
         return
@@ -222,6 +220,7 @@ class Session:
                     session.name)
                 logging.error(err_msg)
                 raise FileExistsError(err_msg)
+        session.session_file = Path.cwd().joinpath(session.name + FILE_EXTENSION_SESSION)
         session.flags = flags
         session.config = Configuration().parse_config(flags)
         session.ms_exp_files, session.iden_files = _gather_paths(flags)
