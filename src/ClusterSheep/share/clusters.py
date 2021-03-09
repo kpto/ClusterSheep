@@ -44,10 +44,6 @@ except ImportError:
 
 
 # ====BEGIN OF CLASS DEFINITION====
-# ====END OF CLASS DEFINITION====
-
-
-# ====BEGIN OF CODE====
 class Clusters:
 
     def __init__(self):
@@ -123,8 +119,84 @@ class Clusters:
         self.is_connected = False
         return
 
+    def get_cluster(self, cluster_id):
+        self.connect()
+        row = self.cursor.execute('SELECT * FROM "clusters" WHERE "cluster_id"=?',
+                                  (cluster_id,)).fetchone()
+        if row is None:
+            err_msg = '\nCluster {} does not exist.'.format(cluster_id)
+            logging.error(err_msg)
+        return Clusters._row_to_cluster(row[:-1], row[-1])
+
+    def exists(self, cluster_id):
+        self.connect()
+        return self.cursor.execute('SELECT EXISTS(SELECT * FROM "clusters" WHERE "cluster_id"=?)',
+                                   (cluster_id,)).fetchone()[0]
+
+    def _get_cluster_no_binary(self, cluster_id):
+        row = self.cursor.execute('SELECT "cluster_id", "num_nodes", "num_edges", "num_idens", ' +
+                                  '"major_iden", "iden_ratio", "pre_mass_avg" FROM "clusters"' +
+                                  'WHERE "cluster_id" = ?', (cluster_id,)).fetchone()
+        return Clusters._row_to_cluster(row, self._get_graph_binary_provider(row[0]))
+
+    def _get_graph_binary_provider(self, cluster_id):
+        return lambda: self._provide_graph_binary(cluster_id)
+
+    def _provide_graph_binary(self, cluster_id):
+        cur = self.connection.cursor()
+        return self.cursor.execute('SELECT "pickled" FROM "clusters" WHERE "cluster_id" = ?',
+                                   (cluster_id,)).fetchone()[0]
+
+    @staticmethod
+    def _row_to_cluster(row, graph_binary):
+        cluster = Cluster()
+        cluster.id,\
+        cluster.num_of_nodes,\
+        cluster.num_of_edges,\
+        cluster.num_of_identifications,\
+        cluster.major_identification,\
+        cluster.identified_ratio,\
+        cluster.average_precursor_mass = row
+        cluster._graph = graph_binary
+        return cluster
+
+    def __iter__(self):
+        self.cursor.execute('SELECT "cluster_id", "num_nodes", "num_edges", "num_idens", ' +
+                            '"major_iden", "iden_ratio", "pre_mass_avg" FROM "clusters"')
+        for row in self.cursor:
+            graph_provider = self._get_graph_binary_provider(row[0])
+            yield Clusters._row_to_cluster(row, graph_provider)
+
     def __repr__(self):
         return pformat(vars(self))
+
+
+class Cluster:
+
+    def __init__(self):
+        self.id = None
+        self.num_of_nodes = None
+        self.num_of_edges = None
+        self.num_of_identifications = None
+        self.major_identification = None
+        self.identified_ratio = None
+        self.average_precursor_mass = None
+        self._graph = None
+        self._graph_loaded = False
+        return
+
+    @property
+    def graph(self):
+        if not self._graph_loaded:
+            # Value is a provider, get the binary first
+            if callable(self._graph):
+                self._graph = self._graph()
+            self._graph = pickle.loads(self._graph)
+            self._graph_loaded = True
+        return self._graph
+# ====END OF CLASS DEFINITION====
+
+# ====BEGIN OF CODE====
 # ====END OF CODE====
 
 

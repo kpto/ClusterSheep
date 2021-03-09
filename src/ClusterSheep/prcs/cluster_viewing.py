@@ -29,8 +29,10 @@ import matplotlib.pyplot
 
 from ClusterSheep.envr.session import get_session
 from ClusterSheep.share.misc import generate_colors
-from ClusterSheep.prcs.parallel.cluster_export import export_cluster
+from ClusterSheep.prcs.parallel.cluster_export import export_clusters
+from ClusterSheep.prcs.parallel.cluster_export import export_one
 from ClusterSheep.prcs.parallel.cluster_enrichment import enrich_clusters
+from ClusterSheep.prcs.parallel.cluster_enrichment import enrich_one
 from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
@@ -83,9 +85,7 @@ try:
     iden_lut = None
     clusters = None
     iden_lut_cur = None
-    clusters_cur = None
     iden_lut_conn = None
-    clusters_conn = None
 except ImportError:
     err_msg = '\nThis module requires a valid session.'
     logging.error(err_msg)
@@ -209,8 +209,8 @@ def cluster_viewer(globals_):
         elif command.isdigit():
             command = int(command)
             if not _check_exists(command): continue
-            enrich_clusters(False, 1, command)
-            graph = _get_graph(command)[-1]
+            enrich_one(command, False)
+            graph = get_graph(command).graph
             draw_cluster_interactive(graph)
         else:
             logging.info('Invalid input.')
@@ -302,8 +302,8 @@ def _save(string):
         resolution = (4000, 4000)
 
     if not _check_exists(cluster_id): return
-    enrich_clusters(False, 1, cluster_id)
-    graph = _get_graph(cluster_id)[-1]
+    enrich_one(cluster_id)
+    graph = get_graph(cluster_id).graph
     draw_cluster_save(graph, path=file, resolution=resolution)
     return
 
@@ -375,36 +375,24 @@ def _export(string):
 
     if not all_:
         if not _check_exists(cluster_id): return
-        enrich_clusters(False, 1, cluster_id)
-        export_cluster(file, 1, cluster_id)
+        enrich_one(cluster_id)
+        export_one(file, cluster_id)
     else:
-        enrich_clusters(False, num_of_threads)
-        export_cluster(file, num_of_threads)
+        enrich_clusters(num_of_threads=num_of_threads)
+        export_clusters(file, num_of_threads)
         _refresh_session()
     return
-
-
-def _get_graph(cluster_id):
-    query = clusters_cur.execute('SELECT * FROM "clusters" WHERE "cluster_id"=?',
-                                 (cluster_id,)).fetchone()
-    return query[:-1] + (pickle.loads(query[-1]),)
 
 
 def get_graph(cluster_id=None):
     if cluster_id is None:
         logging.info('You need to input a cluster ID.')
         return
-    query = clusters_cur.execute('SELECT * FROM "clusters" WHERE "cluster_id"=?',
-                                 (cluster_id,)).fetchone()
-    if not query:
-        logging.info('Cluster with ID "{}" does not exist.'.format(cluster_id))
-        return
-    return query[:-1] + (pickle.loads(query[-1]),)
+    return clusters.get_cluster(cluster_id)
 
 
 def _check_exists(cluster_id):
-    is_exist = clusters_cur.execute('SELECT EXISTS(SELECT * FROM "clusters" WHERE "cluster_id"=?)',
-                                    (cluster_id,)).fetchone()[0]
+    is_exist = clusters.exists(cluster_id)
     if not is_exist:
         logging.info('Cluster with id "{}" does not exist.'.format(cluster_id))
         return False
@@ -454,16 +442,13 @@ def _fill_vertex_color(graph):
 
 
 def _refresh_session():
-    global internal_index, iden_lut, clusters, iden_lut_cur, iden_lut_conn, clusters_cur, clusters_conn
+    global internal_index, iden_lut, clusters, iden_lut_cur, iden_lut_conn
     internal_index = session.internal_index
     iden_lut = session.iden_lut
     clusters = session.clusters
     if iden_lut:
         iden_lut_cur = iden_lut.cursor
         iden_lut_conn = iden_lut.connection
-    if clusters:
-        clusters_cur = clusters.cursor
-        clusters_conn = clusters.connection
     return
 
 

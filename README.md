@@ -415,6 +415,8 @@ clustersheep --load-session=/path/to/mysession.cssess --stay-interactive --dev-m
 
 You will enter cluster viewer as usual, but within developer mode, you can type `python` to enter Python interactive console. The prompt will be changed from `viewer >>>` to `python >>>`. All Python commands executed in the console will be logged into `cslogg` file as well.
 
+API documentation and examples of usage can be found [here](docs/api-and-example.md).
+
 <a name="usage-cluster-refinement"></a>
 ## Cluster refinement
 
@@ -441,6 +443,7 @@ If the value of dot product threshold is too low, all spectra will be clustered 
 * Write unit test.
 * Supports OpenCL and AMD GPUs.
 * Progressive clustering, add spectra after a clustering session.
+* Auto generation of API documentation.
 
 <a name="bugs-or-requests"></a>
 ## Bugs or requests

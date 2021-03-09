@@ -52,7 +52,15 @@ except ImportError:
 
 
 # ====BEGIN OF CODE====
-def export_cluster(file, num_of_threads=os.cpu_count(), specific_cluster=None):
+def export_clusters(file, num_of_threads=os.cpu_count()):
+    _export_clusters(file, num_of_threads)
+    return
+
+def export_one(file, cluster_id):
+    _export_clusters(file, None, cluster_id)
+    return
+
+def _export_clusters(file, num_of_threads=os.cpu_count(), specific_cluster=None):
     _refresh_session()
 
     processes = []

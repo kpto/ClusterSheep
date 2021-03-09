@@ -52,7 +52,15 @@ except ImportError:
 
 
 # ====BEGIN OF CODE====
-def enrich_clusters(update=False, num_of_threads=os.cpu_count(), specific_cluster=None):
+def enrich_clusters(update=False, num_of_threads=os.cpu_count()):
+    _enrich_clusters(update, num_of_threads)
+    return
+
+def enrich_one(cluster_id, update=False):
+    _enrich_clusters(update, None, cluster_id)
+    return
+
+def _enrich_clusters(update=False, num_of_threads=os.cpu_count(), specific_cluster=None):
     _refresh_session()
     if not session.iden_lut:
         logging.info('No identification lookup table is mounted, cannot proceed.')
