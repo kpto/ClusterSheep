@@ -119,15 +119,19 @@ Number of edges in this cluster.
 
 #### num_of_identifications
 
-Number of identifications in this cluster.
+Number of identifications in this cluster. Not `None` only if the cluster is enriched.
+
+#### identifications
+
+List of string representations of all identifications found in the cluster. Not `None` only if the cluster is enriched.
 
 #### major_identification
 
-The identification shared by the most identified spectra.
+The identification shared by the most identified spectra. Not `None` only if the cluster is enriched.
 
 #### identified_ratio
 
-The ratio of identified spectra. 1 if all spectra have identification found in imported identification files.
+The ratio of identified spectra. 1 if all spectra have identification found in imported identification files. Not `None` only if the cluster is enriched.
 
 #### average_precursor_mass
 
@@ -219,7 +223,7 @@ File path to the SQLite database storing all imported identifications.
 Get the identification by MS experiment file name specified by `ms_exp_file_name` and the scan number specified by `native_id`. `ms_exp_file_name` is the name of the file without parent path and the extension. For example, if the path of a file is `/path/to/file.mzXML`, the supplied name should be `file`. Return `None` if no identification is found.
 
 <a name="api-documentation-ranked-spectra"></a>
-### RankedSpectra<a name="api-documentation-s
+### RankedSpectra
 
 All rank-transformed spectra that was used to compute dot products. This is the data uploaded to GPU.
 
@@ -235,3 +239,39 @@ All rank-transformed spectra that was used to compute dot products. This is the 
 
 An integer of the number of peaks in each spectrum. All spectra must have the same number of peaks.
 
+## Examples
+
+
+
+```
+# Get cluster with ID 1301
+cluster = clu.get_cluster(1301)
+
+# Get vertices with identification n[33]MM[147]ENINAFQK[160]/2
+graph = cluster.graph
+search = 'n[33]MM[147]ENINAFQK[160]/2'
+for key, value in graph.gp['ide'].items():
+    if key == search: break
+vertices = [vtx for vtx in graph.iter_vertices() if key == graph.vp['ide'][vtx]]
+
+# Get the edge with lowest dot product
+edges_and_dp = graph.iter_edges([graph.ep['dps']])
+edge = min(edges_and_dp, key=lambda e: e[-1])
+edge = graph.edge(edge[0], edge[1])
+
+# Plot the spectrum pair of the edge
+s_internal_id = graph.vp['iid'][e.source()]
+t_internal_id = graph.vp['iid'][e.target()]
+s_entry = iid[s_internal_id]
+t_entry = iid[t_internal_id]
+s_spectrum = s_entry.get_spectrum()
+t_spectrum = t_entry.get_spectrum()
+s_spectrum.plot(t_spectrum)
+
+# Get largest cluster
+largest = max(clu, key=lambda c: c.num_of_nodes)
+
+# Get clusters containing a specific identification
+search = 'n[33]VFVDDGLISLK[160]/2'
+clusters = [c for c in clu if search in c.identifications]
+```

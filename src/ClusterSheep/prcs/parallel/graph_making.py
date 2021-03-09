@@ -90,6 +90,7 @@ def make_graphs(temp_storage, edge_list_length):
         "num_nodes" INTEGER,
         "num_edges" INTEGER,
         "num_idens" INTEGER,
+        "idens" TEXT,
         "major_iden" TEXT,
         "iden_ratio" REAL,
         "pre_mass_avg" REAL,

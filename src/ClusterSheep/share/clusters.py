@@ -135,7 +135,7 @@ class Clusters:
 
     def _get_cluster_no_binary(self, cluster_id):
         row = self.cursor.execute('SELECT "cluster_id", "num_nodes", "num_edges", "num_idens", ' +
-                                  '"major_iden", "iden_ratio", "pre_mass_avg" FROM "clusters"' +
+                                  '"idens", "major_iden", "iden_ratio", "pre_mass_avg" FROM "clusters"' +
                                   'WHERE "cluster_id" = ?', (cluster_id,)).fetchone()
         return Clusters._row_to_cluster(row, self._get_graph_binary_provider(row[0]))
 
@@ -154,6 +154,7 @@ class Clusters:
         cluster.num_of_nodes,\
         cluster.num_of_edges,\
         cluster.num_of_identifications,\
+        cluster._identifications,\
         cluster.major_identification,\
         cluster.identified_ratio,\
         cluster.average_precursor_mass = row
@@ -162,7 +163,7 @@ class Clusters:
 
     def __iter__(self):
         self.cursor.execute('SELECT "cluster_id", "num_nodes", "num_edges", "num_idens", ' +
-                            '"major_iden", "iden_ratio", "pre_mass_avg" FROM "clusters"')
+                            '"idens", "major_iden", "iden_ratio", "pre_mass_avg" FROM "clusters"')
         for row in self.cursor:
             graph_provider = self._get_graph_binary_provider(row[0])
             yield Clusters._row_to_cluster(row, graph_provider)
@@ -183,6 +184,8 @@ class Cluster:
         self.average_precursor_mass = None
         self._graph = None
         self._graph_loaded = False
+        self._identifications = None
+        self._identification_splitted = False
         return
 
     @property
@@ -194,6 +197,20 @@ class Cluster:
             self._graph = pickle.loads(self._graph)
             self._graph_loaded = True
         return self._graph
+
+    @property
+    def identifications(self):
+        if not self._identification_splitted:
+            if self.num_of_identifications is not None:
+                if self._identifications is None:
+                    self._identifications = []
+                else:
+                    self._identifications = self._identifications.split(';')
+            self._identification_splitted = True
+        return self._identifications
+
+    def __repr__(self):
+        return pformat({ 'id': self.id, 'num_of_nodes': self.num_of_nodes, 'num_of_edges': self.num_of_edges })
 # ====END OF CLASS DEFINITION====
 
 # ====BEGIN OF CODE====

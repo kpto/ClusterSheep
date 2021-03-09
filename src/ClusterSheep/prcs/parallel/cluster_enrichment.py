@@ -257,7 +257,7 @@ def _add_iden_stat(cluster, data_no_iden, data_with_iden, bytes_count, update, i
                 graph.gp.pop('ide')
                 graph.gp.pop('ord')
                 pickled = pickle.dumps(graph)
-                data_with_iden.append((num_idens, None, iden_ratio, pre_mass_avg, pickled, cluster_id))
+                data_with_iden.append((num_idens, None, None, iden_ratio, pre_mass_avg, pickled, cluster_id))
             else:
                 data_no_iden.append((num_idens, iden_ratio, pre_mass_avg, cluster_id))
         else:
@@ -281,8 +281,9 @@ def _add_iden_stat(cluster, data_no_iden, data_with_iden, bytes_count, update, i
             graph.gp['ord'] = list(iden_id)
             major_iden = idens[iden_id[0]]
             iden_ratio = (num_vertices - num_uniden) / num_vertices
+            idens_string = ';'.join(idens.values())
             pickled = pickle.dumps(graph)
-            data_with_iden.append((num_idens, major_iden, iden_ratio, pre_mass_avg, pickled, cluster_id))
+            data_with_iden.append((num_idens, idens_string, major_iden, iden_ratio, pre_mass_avg, pickled, cluster_id))
             bytes_count += len(pickled)
     return
 
@@ -300,7 +301,7 @@ def _push(pid, conn, cur, data_no_iden, data_with_iden, log_lock, merge_lock):
                             'WHERE "cluster_id"=?', data_no_iden)
         if len(data_with_iden) > 0:
             cur.executemany('UPDATE "clusters" '
-                            'SET "num_idens"=?, "major_iden"=?, "iden_ratio"=?, "pre_mass_avg"=?, "pickled"=? '
+                            'SET "num_idens"=?, "idens"=?, "major_iden"=?, "iden_ratio"=?, "pre_mass_avg"=?, "pickled"=? '
                             'WHERE "cluster_id"=?', data_with_iden)
         conn.commit()
     return
