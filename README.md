@@ -22,7 +22,7 @@
     * [Others](#prerequisites-others)
 * [Installation](#installation)
     * [Docker](#installation-docker)
-    * [PyPI](#installation-pypi)
+    * [Test PyPI](#installation-pypi)
 * [Flow](#flow)
 * [Usage](#usage)
     * [Quick start](#usage-quick-start)
@@ -119,13 +119,15 @@ docker run -ti --rm --gpus all -u user -w /home/user -e DISPLAY=$DISPLAY -v /tmp
 `--gpus all` allows the container to access the GPU, `-u user` prevents running ClusterSheep as root, `-w /home/user` set the initial working directory to be an user space directory and `-e DISPLAY=$DISPLAY -v /tmp/.X11-unix:/tmp/.X11-unix` enables X window rendering on host's X server. To access files of the host, you need one more `-v` option to map the desired directory. For example, `-v ~/Documents:/home/user/Documents` maps your Documents folder to the Documents folder inside the container. See [reference of docker run](https://docs.docker.com/engine/reference/run/#volume-shared-filesystems) for more information.
 
 <a name="installation-pypi"></a>
-### PyPI
+### Test PyPI
 
-ClusterSheep is available via PyPI, with all [basic dependencies](#prerequisites-base) installed, ClusterSheep can be installed with the following command:
+ClusterSheep is available via ***Test*** PyPI, with all [basic dependencies](#prerequisites-base) installed, ClusterSheep can be installed with the following command:
 
 ```
-pip install ClusterSheep
+pip install -i https://test.pypi.org/simple/ ClusterSheep
 ```
+
+ClusterSheep is still under heavy development and will soon be available on PyPI once the versioning scheme has been decided.
 
 <a name="flow"></a>
 ## Flow
