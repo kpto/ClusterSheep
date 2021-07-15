@@ -13,67 +13,76 @@ variables:
   test_requirements_file: azure-pipelines/test-requirements.txt
 
 
-jobs:
+stages:
+- stage: PublishToPyPI
+  jobs:
+  - job: BuildTestPublish
+    displayName: 'Build, test and publish wheels'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: '3.8'
+        displayName: 'Use Python 3.8'
 
-- job: BuildTestPublish
-  displayName: 'Build, test and publish wheels and docker image'
-  pool:
-    vmImage: 'ubuntu-latest'
-  steps:
-    - task: UsePythonVersion@0
-      inputs:
-        versionSpec: '3.8'
-      displayName: 'Use Python 3.8'
+      - script: |
+          python -m pip install --upgrade pip
+          python -m pip install setuptools twine
+          python -m pip install -r $(build_requirements_file)
+        displayName: 'Install sdist dependencies and twine'
 
-    - script: |
-        python -m pip install --upgrade pip
-        python -m pip install setuptools twine
-        python -m pip install -r $(build_requirements_file)
-      displayName: 'Install sdist dependencies and twine'
+      - script: python setup.py sdist
+        displayName: 'Build sdist'
 
-    - script: python setup.py sdist
-      displayName: 'Build sdist'
+      - script: |
+          chmod +x azure-pipelines/build-test.sh
+          sudo docker run \
+            --rm \
+            -e NPY_NUM_BUILD_JOBS=4 \
+            -e PLAT=manylinux1_x86_64 \
+            -e package_name=$(package_name) \
+            -e build_requirements_file='$(build_requirements_file)' \
+            -e test_requirements_file='$(test_requirements_file)' \
+            -v $PWD:/io \
+            quay.io/pypa/manylinux1_x86_64 \
+            /io/azure-pipelines/build-test.sh
+        displayName: 'Build bdist wheels and run pytest in manylinux'
 
-    - script: |
-        chmod +x azure-pipelines/build-test.sh
-        sudo docker run \
-          --rm \
-          -e NPY_NUM_BUILD_JOBS=4 \
-          -e PLAT=manylinux1_x86_64 \
-          -e package_name=$(package_name) \
-          -e build_requirements_file='$(build_requirements_file)' \
-          -e test_requirements_file='$(test_requirements_file)' \
-          -v $PWD:/io \
-          quay.io/pypa/manylinux1_x86_64 \
-          /io/azure-pipelines/build-test.sh
-      displayName: 'Build bdist wheels and run pytest in manylinux'
+      - script: |
+          ls -lh wheelhouse/
+          mkdir -p dist
+          cp wheelhouse/$(package_name)*.whl dist/.
+        displayName: 'Show and copy wheels to dist/'
 
-    - script: |
-        ls -lh wheelhouse/
-        mkdir -p dist
-        cp wheelhouse/$(package_name)*.whl dist/.
-      displayName: 'Show and copy wheels to dist/'
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFormat: 'NUnit'
+          testResultsFiles: '*-test-output.xml'
+        displayName: 'Publish test results'
 
-    - task: PublishTestResults@2
-      inputs:
-        testResultsFormat: 'NUnit'
-        testResultsFiles: '*-test-output.xml'
-      displayName: 'Publish test results'
+      - task: TwineAuthenticate@1
+        inputs:
+          pythonUploadServiceConnection: 'PyPi-ClusterSheep'
+        displayName: 'Twine authenticate'
 
-    - task: TwineAuthenticate@1
-      inputs:
-        pythonUploadServiceConnection: 'PyPi-ClusterSheep'
-      displayName: 'Twine authenticate'
+      - script: |
+          python -m twine upload --repository testpypi --config-file $(PYPIRC_PATH) dist/*
+        displayName: 'Upload to PyPI'
 
-    - script: |
-        python -m twine upload --repository testpypi --config-file $(PYPIRC_PATH) dist/*
-      displayName: 'Upload to PyPI'
-
-    - task: Docker@2
-      displayName: 'Build and push docker image'
-      inputs:
-        containerRegistry: 'DockerHub-ClusterSheep'
-        repository: 'kpto/clustersheep'
-        command: buildAndPush
-        Dockerfile: docker/Dockerfile
-        tags: latest
+- stage: PublishToDocker
+  dependsOn: PublishToPyPI
+  jobs:
+  - job: BuildImage
+    displayName: 'Build docker image'
+    pool:
+      vmImage: 'ubuntu-latest'
+    steps:
+      - task: Docker@2
+        displayName: 'Build and push docker image'
+        inputs:
+          containerRegistry: 'DockerHub-ClusterSheep'
+          repository: 'kpto/clustersheep'
+          command: buildAndPush
+          Dockerfile: docker/Dockerfile
+          tags: latest
