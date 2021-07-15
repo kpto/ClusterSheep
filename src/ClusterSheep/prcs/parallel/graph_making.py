@@ -43,6 +43,8 @@ from ClusterSheep.property import *
 try:
     session = get_session()
     num_of_threads = None
+    use_dbscan = None
+    dbscan_min_points = None
 except ImportError:
     err_msg = '\nThis module requires a valid session.'
     logging.error(err_msg)
@@ -207,9 +209,41 @@ def _worker(pid, scan_starting_idx, temp_storage, edge_list_length, finish_count
             temp_graph.vp['iid'] = temp_graph.add_edge_list(edge[start:end], hashed=True)
             temp_graph.ep['dps'] = dps_prop = temp_graph.new_ep('float')
             dps_prop.a = dps[start:end]
-            pickled = pickle.dumps(temp_graph)
-            bytes_count += len(pickled)
-            data.append((temp_graph.num_vertices(), temp_graph.num_edges(), pickled))
+            temp_graphs = []
+
+            if use_dbscan:
+                from ClusterSheep.share.dbscan_point_type import DbscanPointType
+                noise, border, core = DbscanPointType.NOISE, DbscanPointType.BORDER, DbscanPointType.CORE
+                edge_degrees = temp_graph.get_total_degrees(temp_graph.get_vertices())
+                point_types = np.full(edge_degrees.shape, noise, dtype=np.int32)
+                point_types[edge_degrees >= (dbscan_min_points - 1)] = core
+                for idx in np.where(point_types == noise)[0]:
+                    neighbors = temp_graph.get_all_neighbors(idx)
+                    neighbor_is_core = point_types[neighbors] == core
+                    if np.any(neighbor_is_core):
+                        point_types[idx] = border
+                temp_graph.vp['dst'] = dst_prop = temp_graph.new_vp('int')
+                dst_prop.a = point_types
+                vfilt = point_types == core
+                graph_core_only = gt.GraphView(temp_graph, vfilt=vfilt)
+                comp, hist = gt.label_components(graph_core_only)
+                comp.a[point_types == noise] = -1
+                for idx in np.where(point_types == border)[0]:
+                    neighbors = temp_graph.get_all_neighbors(idx)
+                    first_core_neighbor = neighbors[point_types[neighbors] == core][0]
+                    clu_idx = comp.a[first_core_neighbor]
+                    comp.a[idx] = clu_idx
+                    hist[clu_idx] += 1
+                for i in range(len(hist)):
+                    if hist[i] > 1:
+                        temp_graphs.append(gt.Graph(gt.GraphView(temp_graph, vfilt=(comp.a == i)), prune=True, directed=False))
+            else:
+                temp_graphs.append(temp_graph)
+
+            for tg in temp_graphs:
+                pickled = pickle.dumps(tg)
+                bytes_count += len(pickled)
+                data.append((tg.num_vertices(), tg.num_edges(), pickled))
             local_finish_count += 1
 
             if local_finish_count >= 1000:
@@ -253,8 +287,10 @@ def _push(pid, conn, cur, data, log_lock, merge_lock):
 
 
 def _refresh_session():
-    global num_of_threads
+    global num_of_threads, use_dbscan, dbscan_min_points
     num_of_threads = session.config.gm_num_of_threads.value
+    use_dbscan = session.config.cg_use_dbscan.value
+    dbscan_min_points = session.config.cg_dbscan_min_points.value
     return
 # ====END OF CODE====
 

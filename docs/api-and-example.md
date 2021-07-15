@@ -273,5 +273,5 @@ largest = max(clu, key=lambda c: c.num_of_nodes)
 
 # Get clusters containing a specific identification
 search = 'n[33]VFVDDGLISLK[160]/2'
-clusters = [c for c in clu if search in c.identifications]
+clusters = [c for c in clu if search in c.identifications.keys()]
 ```

@@ -33,6 +33,7 @@ from ClusterSheep.prcs.parallel.cluster_export import export_clusters
 from ClusterSheep.prcs.parallel.cluster_export import export_one
 from ClusterSheep.prcs.parallel.cluster_enrichment import enrich_clusters
 from ClusterSheep.prcs.parallel.cluster_enrichment import enrich_one
+from ClusterSheep.prcs.entropy_calculation import calculate_entropy
 from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
@@ -206,6 +207,8 @@ def cluster_viewer(globals_):
             _export(command)
         elif command.startswith('save'):
             _save(command)
+        elif command.startswith('calculate entropy'):
+            calculate_entropy()
         elif command.isdigit():
             command = int(command)
             if not _check_exists(command): continue

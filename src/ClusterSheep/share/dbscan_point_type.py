@@ -1,0 +1,6 @@
+from ClusterSheep.property import *
+
+class DbscanPointType:
+    NOISE = CG_DBSCAN_NOISE_POINT_NUMBER
+    BORDER = CG_DBSCAN_BORDER_POINT_NUMBER
+    CORE = CG_DBSCAN_CORE_POINT_NUMBER

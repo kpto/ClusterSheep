@@ -104,6 +104,7 @@ class Session:
 
     def save_session(self):
         logging.info('Saving session.')
+        self.session_file = Path.cwd().joinpath(_session.name + FILE_EXTENSION_SESSION)
         self.delete_session_file()
         self.session_file.touch()
         vars_ = dict()

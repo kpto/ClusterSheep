@@ -63,8 +63,14 @@ class Configuration:
         # clustering general parameters
         self.cg_precursor_tolerance = ParameterBase(1.1, float, range_=(0.0, INF))
         self.cg_dot_product_threshold = ParameterBase(0.7, float, range_=(0.0, 1.0))
+        self.cg_use_justin_similarity_func = ParameterBase(False, bool)
+        self.cg_justin_similarity_func_pmass_multiplier = ParameterBase(-0.5275, float)
+        self.cg_justin_similarity_func_dp_multiplier = ParameterBase(4.5572, float)
+        self.cg_justin_similarity_func_constant = ParameterBase(-1.8332, float)
         self.cg_block_dimensions = ParameterTuple((2048, 2048), int, element_range=(1, INF), size=2)
         self.cg_allocation_size_initial_divisor = ParameterBase(30, int, range_=(1, INF))
+        self.cg_use_dbscan = ParameterBase(False, bool)
+        self.cg_dbscan_min_points = ParameterBase(3, int, range_=(1, INF))
         self.cg_finished = ParameterBase(False, bool)
         # clustering gpu parameters
         self.gpu_use_gpu = ParameterBase(True, bool)
@@ -105,8 +111,14 @@ class Configuration:
                'rt_finished:' + str(self.rt_finished) + '\n' +\
                'cg_precursor_tolerance:' + str(self.cg_precursor_tolerance) + '\n' +\
                'cg_dot_product_threshold:' + str(self.cg_dot_product_threshold) + '\n' +\
+               'cg_use_justin_similarity_func:' + str(self.cg_use_justin_similarity_func) + '\n' + \
+               'cg_justin_similarity_func_pmass_multiplier:' + str(self.cg_justin_similarity_func_pmass_multiplier) + '\n' +\
+               'cg_justin_similarity_func_dp_multiplier:' + str(self.cg_justin_similarity_func_dp_multiplier) + '\n' +\
+               'cg_justin_similarity_func_constant:' + str(self.cg_justin_similarity_func_constant) + '\n' +\
                'cg_block_dimensions:' + str(self.cg_block_dimensions) + '\n' +\
                'cg_allocation_size_initial_divisor' + str(self.cg_allocation_size_initial_divisor) + '\n' +\
+               'cg_use_dbscan' + str(self.cg_use_dbscan) + '\n' +\
+               'cg_dbscan_min_points' + str(self.cg_dbscan_min_points) + '\n' +\
                'cg_finished:' + str(self.cg_finished) + '\n' +\
                'gpu_use_gpu:' + str(self.gpu_use_gpu) + '\n' +\
                'gpu_gpus_used:' + str(self.gpu_gpus_used) + '\n' + \
@@ -198,6 +210,22 @@ class Configuration:
         self.cg_dot_product_threshold.value = value
         return
 
+    def func_cg_use_justin_similarity_func(self, value):
+        self.cg_use_justin_similarity_func.value = value
+        return
+
+    def func_cg_justin_similarity_func_pmass_multiplier(self, value):
+        self.cg_justin_similarity_func_pmass_multiplier.value = value
+        return
+
+    def func_cg_justin_similarity_func_dp_multiplier(self, value):
+        self.cg_justin_similarity_func_dp_multiplier.value = value
+        return
+
+    def func_cg_justin_similarity_func_constant(self, value):
+        self.cg_justin_similarity_func_constant.value = value
+        return
+
     def func_cg_block_dimensions(self, value):
         self.cg_block_dimensions.value = value
         self._check_block_dimension_validity()
@@ -205,6 +233,14 @@ class Configuration:
 
     def func_cg_allocation_size_initial_divisor(self, value):
         self.cg_allocation_size_initial_divisor.value = value
+        return
+
+    def func_cg_use_dbscan(self, value):
+        self.cg_use_dbscan.value = value
+        return
+
+    def func_cg_dbscan_min_points(self, value):
+        self.cg_dbscan_min_points.value = value
         return
 
     def func_gpu_use_gpu(self, value):
@@ -292,8 +328,14 @@ class Configuration:
             'rt_num_of_threads': self.func_rt_num_of_threads,
             'cg_precursor_tolerance': self.func_cg_precursor_tolerance,
             'cg_dot_product_threshold': self.func_cg_dot_product_threshold,
+            'cg_use_justin_similarity_func': self.func_cg_use_justin_similarity_func,
+            'cg_justin_similarity_func_pmass_multiplier': self.func_cg_justin_similarity_func_pmass_multiplier,
+            'cg_justin_similarity_func_dp_multiplier': self.func_cg_justin_similarity_func_dp_multiplier,
+            'cg_justin_similarity_func_constant': self.func_cg_justin_similarity_func_constant,
             'cg_block_dimensions': self.func_cg_block_dimensions,
             'cg_allocation_size_initial_divisor': self.func_cg_allocation_size_initial_divisor,
+            'cg_use_dbscan': self.func_cg_use_dbscan,
+            'cg_dbscan_min_points': self.func_cg_dbscan_min_points,
             'gpu_use_gpu': self.func_gpu_use_gpu,
             'gpu_gpus_used': self.func_gpu_gpus_used,
             'gpu_cuda_block_dimensions': self.func_gpu_cuda_block_dimensions,

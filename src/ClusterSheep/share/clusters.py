@@ -185,7 +185,7 @@ class Cluster:
         self._graph = None
         self._graph_loaded = False
         self._identifications = None
-        self._identification_splitted = False
+        self._identifications_resolved = False
         return
 
     @property
@@ -200,13 +200,16 @@ class Cluster:
 
     @property
     def identifications(self):
-        if not self._identification_splitted:
-            if self.num_of_identifications is not None:
-                if self._identifications is None:
-                    self._identifications = []
-                else:
-                    self._identifications = self._identifications.split(';')
-            self._identification_splitted = True
+        if self._identifications_resolved:
+            return self._identifications
+
+        iden_str = self._identifications
+        self._identifications = {}
+        if iden_str is not None:
+            for iden_and_count in iden_str.split(';'):
+                iden, count = iden_and_count.split(':')
+                self._identifications[iden] = int(count)
+        self._identifications_resolved = True
         return self._identifications
 
     def __repr__(self):

@@ -276,12 +276,14 @@ def _add_iden_stat(cluster, data_no_iden, data_with_iden, bytes_count, update, i
                 num_uniden = counts[idx]
                 iden_id = np.append(iden_id[:idx], iden_id[idx+1:])
                 counts = np.append(counts[:idx], counts[idx+1:])
-            iden_id = iden_id[np.argsort(counts)[::-1]]
+            sorted_indexing = np.argsort(counts)[::-1]
+            iden_id = iden_id[sorted_indexing]
+            counts = counts[sorted_indexing]
             graph.gp['ord'] = graph.new_gp('object')
             graph.gp['ord'] = list(iden_id)
             major_iden = idens[iden_id[0]]
             iden_ratio = (num_vertices - num_uniden) / num_vertices
-            idens_string = ';'.join(idens.values())
+            idens_string = ';'.join('{}:{}'.format(idens[iden_id[i]], counts[i]) for i in range(len(iden_id)))
             pickled = pickle.dumps(graph)
             data_with_iden.append((num_idens, idens_string, major_iden, iden_ratio, pre_mass_avg, pickled, cluster_id))
             bytes_count += len(pickled)
