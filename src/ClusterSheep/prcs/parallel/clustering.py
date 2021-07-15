@@ -24,7 +24,6 @@ from uuid import uuid4
 import math
 
 from ClusterSheep.envr.session import get_session
-from ClusterSheep.prcs.parallel.clustering_gpu import clustering_gpu
 from ClusterSheep.prcs.parallel.clustering_cpu import clustering_cpu
 from ClusterSheep.prcs.parallel.find_cluster import _union_find, _find_parent, _find_belonging, _argsort
 from ClusterSheep.prcs.parallel.graph_making import make_graphs
@@ -116,6 +115,7 @@ def clustering():
 
     if use_gpu:
         try:
+            from ClusterSheep.prcs.parallel.clustering_gpu import clustering_gpu
             total_edge_count = clustering_gpu(dispatcher, temp_storage)
         except Exception:
             if not session.flags.force:

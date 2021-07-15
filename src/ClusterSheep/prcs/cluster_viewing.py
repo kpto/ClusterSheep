@@ -29,6 +29,11 @@ import matplotlib.pyplot
 
 from ClusterSheep.envr.session import get_session
 from ClusterSheep.share.misc import generate_colors
+from ClusterSheep.prcs.parallel.cluster_export import export_clusters
+from ClusterSheep.prcs.parallel.cluster_export import export_one
+from ClusterSheep.prcs.parallel.cluster_enrichment import enrich_clusters
+from ClusterSheep.prcs.parallel.cluster_enrichment import enrich_one
+from ClusterSheep.prcs.entropy_calculation import calculate_entropy
 from ClusterSheep.property import *
 # ====END OF MODULE IMPORT====
 
@@ -81,9 +86,7 @@ try:
     iden_lut = None
     clusters = None
     iden_lut_cur = None
-    clusters_cur = None
     iden_lut_conn = None
-    clusters_conn = None
 except ImportError:
     err_msg = '\nThis module requires a valid session.'
     logging.error(err_msg)
@@ -204,11 +207,13 @@ def cluster_viewer(globals_):
             _export(command)
         elif command.startswith('save'):
             _save(command)
+        elif command.startswith('calculate entropy'):
+            calculate_entropy()
         elif command.isdigit():
             command = int(command)
             if not _check_exists(command): continue
-            _add_iden_stat(command)
-            graph = _get_graph(command)[-1]
+            enrich_one(command, False)
+            graph = get_graph(command).graph
             draw_cluster_interactive(graph)
         else:
             logging.info('Invalid input.')
@@ -300,8 +305,8 @@ def _save(string):
         resolution = (4000, 4000)
 
     if not _check_exists(cluster_id): return
-    _add_iden_stat(cluster_id)
-    graph = _get_graph(cluster_id)[-1]
+    enrich_one(cluster_id)
+    graph = get_graph(cluster_id).graph
     draw_cluster_save(graph, path=file, resolution=resolution)
     return
 
@@ -369,145 +374,28 @@ def _export(string):
     else:
         file = Path(file).absolute()
     if file.is_dir():
-        file = file.joinpath('exported_cluster_{}_'.format(cluster_id) + datetime.now().isoformat() + '.text')
+        file = file.joinpath('exported_cluster_{}_'.format(cluster_id) + datetime.now().isoformat() + '.txt')
 
     if not all_:
         if not _check_exists(cluster_id): return
-        _add_iden_stat(cluster_id)
-        _export_cluster(cluster_id, file)
+        enrich_one(cluster_id)
+        export_one(file, cluster_id)
     else:
-        from ClusterSheep.prcs.parallel.cluster_export import export_cluster
-        export_cluster(file, num_of_threads)
+        enrich_clusters(num_of_threads=num_of_threads)
+        export_clusters(file, num_of_threads)
         _refresh_session()
     return
-
-
-def _export_cluster(cluster_id, file):
-    cluster = _get_graph(cluster_id)
-    if cluster is None: return
-    graph = cluster[-1]
-    description = ('# cluster_id={}; num_nodes={}; num_edges={}; num_idens={}; '
-                   'major_iden={}; iden_ratio={}; pre_mass_avg={}\n'.format(*(cluster[:-1])))
-    files = session.ms_exp_files[session.internal_index.file_id[graph.vp['iid'].a]]
-    native_ids = session.internal_index.native_id[graph.vp['iid'].a]
-    if 'ide' in graph.gp:
-        idens = graph.gp['ide']
-        idens[-1] = 'None'
-        iden_ids = graph.vp['ide'].a
-        prb = graph.vp['prb'].a
-        with file.open('a', encoding='utf-8') as fp:
-            fp.write(description)
-            for i in range(graph.num_vertices()):
-                line = str(files[i]) + '\t' + str(native_ids[i]) + '\t' + idens[iden_ids[i]] + '\t' + str(prb[i]) + '\n'
-                fp.write(line)
-            fp.write('\n')
-    else:
-        with file.open('a', encoding='utf-8') as fp:
-            fp.write(description)
-            for i in range(graph.num_vertices()):
-                line = str(files[i]) + '\t' + str(native_ids[i]) + '\n'
-                fp.write(line)
-            fp.write('\n')
-    return
-
-
-def _add_iden_stat(cluster_id, update=False):
-    if not iden_lut:
-        return
-    graph = _get_graph(cluster_id)[-1]
-    if 'ide' in graph.gp and not update:
-        return
-    num_vertices = graph.num_vertices()
-    iid_arr = graph.vp['iid'].a
-    ide = graph.new_vp('int', val=-1)
-    prb = graph.new_vp('float', val=0.0)
-    precursor_mass = np.empty(num_vertices, dtype=np.float32)
-    ide_arr = ide.a
-    prb_arr = prb.a
-    idens = {}
-
-    for i in range(num_vertices):
-        entry = internal_index[int(iid_arr[i])]
-        precursor_mass[i] = entry.precursor_mass
-        identification = entry.get_identification()
-        if identification and not identification.is_decoy:
-            string = identification.to_tpp_string_integer() + '/' + str(identification.charge)
-            if string not in idens:
-                idens[string] = len(idens)
-            ide_arr[i] = idens[string]
-            prb_arr[i] = identification.probability
-    pre_mass_avg = float(np.mean(precursor_mass))
-
-    if len(idens) == 0:
-        num_idens = 0
-        iden_ratio = 0.0
-        # clear original information in case of updating
-        if 'ide' in graph.gp:
-            graph.vp.pop('ide')
-            graph.vp.pop('prb')
-            graph.gp.pop('ide')
-            graph.gp.pop('ord')
-            pickled = pickle.dumps(graph)
-            clusters_cur.execute('UPDATE "clusters" '
-                                 'SET "num_idens"=?, "major_iden"=?, "iden_ratio"=?, "pre_mass_avg"=?, "pickled"=? '
-                                 'WHERE "cluster_id"=?',
-                                 (num_idens, None, iden_ratio, pre_mass_avg, pickled, cluster_id))
-        else:
-            clusters_cur.execute('UPDATE "clusters" '
-                                 'SET "num_idens"=?, "iden_ratio"=?, "pre_mass_avg"=? '
-                                 'WHERE "cluster_id"=?', (num_idens, iden_ratio, pre_mass_avg, cluster_id))
-    else:
-        num_idens = len(idens)
-        graph.vp['ide'] = ide
-        graph.vp['prb'] = prb
-        idens = {v: k for k, v in idens.items()}
-        graph.gp['ide'] = graph.new_gp('object')
-        graph.gp['ide'] = idens
-        iden_id, counts = np.unique(ide.a, return_counts=True)
-        idx = np.where(iden_id == -1)[0]
-        if len(idx) == 0:
-            num_uniden = 0
-        else:
-            idx = idx[0]
-            num_uniden = counts[idx]
-            iden_id = np.append(iden_id[:idx], iden_id[idx+1:])
-            counts = np.append(counts[:idx], counts[idx+1:])
-        iden_id = iden_id[np.argsort(counts)[::-1]]
-        graph.gp['ord'] = graph.new_gp('object')
-        graph.gp['ord'] = list(iden_id)
-        major_iden = idens[iden_id[0]]
-        iden_ratio = (num_vertices - num_uniden) / num_vertices
-        pickled = pickle.dumps(graph)
-
-        clusters_cur.execute('UPDATE "clusters" '
-                             'SET "num_idens"=?, "major_iden"=?, "iden_ratio"=?, "pre_mass_avg"=?, "pickled"=? '
-                             'WHERE "cluster_id"=?',
-                             (num_idens, major_iden, iden_ratio, pre_mass_avg, pickled, cluster_id))
-    clusters_conn.commit()
-    return
-
-
-def _get_graph(cluster_id):
-    query = clusters_cur.execute('SELECT * FROM "clusters" WHERE "cluster_id"=?',
-                                 (cluster_id,)).fetchone()
-    return query[:-1] + (pickle.loads(query[-1]),)
 
 
 def get_graph(cluster_id=None):
     if cluster_id is None:
         logging.info('You need to input a cluster ID.')
         return
-    query = clusters_cur.execute('SELECT * FROM "clusters" WHERE "cluster_id"=?',
-                                 (cluster_id,)).fetchone()
-    if not query:
-        logging.info('Cluster with ID "{}" does not exist.'.format(cluster_id))
-        return
-    return query[:-1] + (pickle.loads(query[-1]),)
+    return clusters.get_cluster(cluster_id)
 
 
 def _check_exists(cluster_id):
-    is_exist = clusters_cur.execute('SELECT EXISTS(SELECT * FROM "clusters" WHERE "cluster_id"=?)',
-                                    (cluster_id,)).fetchone()[0]
+    is_exist = clusters.exists(cluster_id)
     if not is_exist:
         logging.info('Cluster with id "{}" does not exist.'.format(cluster_id))
         return False
@@ -557,16 +445,13 @@ def _fill_vertex_color(graph):
 
 
 def _refresh_session():
-    global internal_index, iden_lut, clusters, iden_lut_cur, iden_lut_conn, clusters_cur, clusters_conn
+    global internal_index, iden_lut, clusters, iden_lut_cur, iden_lut_conn
     internal_index = session.internal_index
     iden_lut = session.iden_lut
     clusters = session.clusters
     if iden_lut:
         iden_lut_cur = iden_lut.cursor
         iden_lut_conn = iden_lut.connection
-    if clusters:
-        clusters_cur = clusters.cursor
-        clusters_conn = clusters.connection
     return
 
 

@@ -162,6 +162,43 @@ cr_keep_raw = False
 /(bool)
 /Keep the untouched clusters separately after refinement.
 
+cg_use_justin_similarity_func = False
+/(bool)
+/When true, justin similarity function is used instead of simple dot product function.
+/The function is
+/   1 / (1 + 
+/            EXP(
+/                -(
+/                    ({cg_dbscan_distance_func_pmass_multiplier} * {precursor mass difference}) +
+/                    ({cg_dbscan_distance_func_dp_multiplier} * {dot product}) +
+/                    {cg_dbscan_distance_func_constant}
+/                 )
+/               )
+/       )
+
+cg_justin_similarity_func_pmass_multiplier = -0.5275
+/(float, -INF - INF)
+/Used when justin similarity function is enabled. The multiplier of precursor mass in distance function.
+/See description of cg_use_dbscan for the distance function.
+
+cg_justin_similarity_func_dp_multiplier = 4.5572
+/(float, -INF - INF)
+/Used when justin similarity function is enabled. The multiplier of dot product in distance function.
+/See description of cg_use_dbscan for the distance function.
+
+cg_justin_similarity_func_constant = -1.8332
+/(float, -INF - INF)
+/Used when justin similarity function is enabled. The constant in distance function.
+/See description of cg_use_dbscan for the distance function.
+
+cg_use_dbscan = False
+/(bool)
+/When true, spectra will be clustered using DBSCAN, except that similarity is used instead of distance.
+
+cg_dbscan_min_points = 3
+/(int, 1 - INF)
+/The minimum points parameter of DBSCAN, ignored if cg_use_dbscan is False.
+
 
 TECHNICAL parameters:
 

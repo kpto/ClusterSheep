@@ -81,16 +81,10 @@ def interactive_console(globals_, banner=None, pre_run=None, true_exit=False):
 
     if pre_run is None:
         pre_run = [
-            'import misc',
-            'import sys',
-            'import os',
-            'sys.path.append(os.getcwd())',
-            'misc.global_vars = globals()',
-            'from ClusterSheep.misc import ipython',
-            'import numpy as np',
-            'from importlib import reload',
-            'from ClusterSheep.prcs.cluster_viewing import cluster_viewer',
-            'from ClusterSheep.prcs.cluster_viewing import get_graph',
+            'from ClusterSheep.prcs import cluster_viewing',
+            'from ClusterSheep.prcs.parallel import cluster_enrichment',
+            'from ClusterSheep.prcs.parallel import cluster_export',
+            'ses = session',
             'iid = session.internal_index',
             'rks = session.ranked_spectra',
             'clu = session.clusters',

@@ -88,8 +88,10 @@ __global__ void compute_dot_product(
 
     __syncthreads();
 
+    {pmass_dtype} pmass_diff = abs(s_precursor_mass_y[threadIdx.y]-s_precursor_mass_x[threadIdx.x]);
+
     if((local_location_y < block_dimensions[0] && local_location_x < block_dimensions[1]) &&
-       (abs(s_precursor_mass_y[threadIdx.y]-s_precursor_mass_x[threadIdx.x]) <= {pmass_tol})) {{
+       (pmass_diff <= {pmass_tol})) {{
         {dot_product_dtype} dp = 0;
         uint32_t y_ptr = 0;
         uint32_t x_ptr = 0;
@@ -105,6 +107,8 @@ __global__ void compute_dot_product(
                 ++x_ptr;
             }}
         }}
+
+        {justin_similarity_func}
 
         if(dp > {dp_tol}) {{
             {edge_dtype} global_location_y = local_location_y + offset[0];
@@ -134,7 +138,9 @@ __global__ void compute_dot_product(
 # ====BEGIN OF CODE====
 def get_source_code():
     precursor_tolerance = session.config.cg_precursor_tolerance.value
+    use_justin_similarity_func = session.config.cg_use_justin_similarity_func.value
     dot_product_threshold = session.config.cg_dot_product_threshold.value
+    justin_similarity_func = get_justin_similarity_func() if use_justin_similarity_func else ''
     cuda_block_dimensions = session.config.gpu_cuda_block_dimensions.value
     cuda_block_height, cuda_block_width = cuda_block_dimensions
     num_of_peaks = session.config.rt_num_of_peaks.value
@@ -153,9 +159,22 @@ def get_source_code():
             'dp_tol': dot_product_threshold,
             'cuda_block_height': cuda_block_height,
             'cuda_block_width': cuda_block_width,
-            'num_of_peaks': num_of_peaks
+            'num_of_peaks': num_of_peaks,
+            'justin_similarity_func': justin_similarity_func
     }
     return template.format(**info)
+
+def get_justin_similarity_func():
+    justin_similarity_func_pmass_multiplier = session.config.cg_justin_similarity_func_pmass_multiplier.value
+    justin_similarity_func_dp_multiplier = session.config.cg_justin_similarity_func_dp_multiplier.value
+    justin_similarity_func_constant = session.config.cg_justin_similarity_func_constant.value
+    info = {
+        'pmass_diff_multiplier': justin_similarity_func_pmass_multiplier,
+        'dp_multiplier': justin_similarity_func_dp_multiplier,
+        'constant': justin_similarity_func_constant
+    }
+    func = 'dp = 1 / (1 + __expf(-(({pmass_diff_multiplier} * pmass_diff) + ({dp_multiplier} * dp) + ({constant}))));'
+    return func.format(**info)
 # ====END OF CODE====
 
 
