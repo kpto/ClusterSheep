@@ -46,6 +46,7 @@ try:
     ignore_errors = None
     true_precursor_mass = None
     num_of_peaks = None
+    min_num_peaks = None
     precursor_removal_range = None
     mz_range = None
     bins_per_th = None
@@ -316,35 +317,23 @@ def _rank_transform(precursor_mass, precursor_charge, mz, intensity, log_lock=Lo
     intensity = intensity[idx]
     intensity /= np.linalg.norm(intensity)
 
-    if temp < num_of_peaks:
+    if temp < min_num_peaks:
+        mz = np.full(num_of_peaks, -1, dtype=np.int32)
+        intensity = np.full(num_of_peaks, 0, dtype=np.float32)
+    elif temp < num_of_peaks:
         mz = np.append(np.full(num_of_peaks - temp, -1, dtype=np.int32), mz)
         intensity = np.append(np.full(num_of_peaks - temp, 0, dtype=np.float32), intensity)
+
     return mz, intensity
 
 
-# @nb.jit(nopython=True)
-# def _binning(mz, intensity, new_mz, new_intensity):
-#     previous = -1
-#     cursor = -1
-#     length = len(mz)
-#     for i in range(length):
-#         mz_int = int(mz[i])
-#         if mz_int == previous:
-#             new_intensity[cursor] += intensity[i]
-#         else:
-#             cursor += 1
-#             new_mz[cursor] = previous = mz_int
-#             new_intensity[cursor] = intensity[i]
-#     cursor += 1
-#     return
-
-
 def _refresh_session():
-    global ignore_errors, true_precursor_mass, num_of_peaks, remove_precursor
+    global ignore_errors, true_precursor_mass, num_of_peaks, min_num_peaks
     global precursor_removal_range, mz_range, bins_per_th, num_of_threads
     ignore_errors = session.flags.ignore_errors
     true_precursor_mass = session.internal_index.true_precursor_mass
     num_of_peaks = session.config.rt_num_of_peaks.value
+    min_num_peaks = session.config.rt_min_num_peaks.value
     precursor_removal_range = session.config.rt_precursor_removal_range.value
     mz_range = session.config.rt_mz_range.value
     bins_per_th = session.config.rt_bins_per_th.value

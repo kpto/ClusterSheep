@@ -97,7 +97,12 @@ ii_true_precursor_mass = False
 
 ii_min_num_peaks = 10
 /(int, 1 - INF)
-/Spectra with numbers of peaks smaller than the set value are skipped.
+/Spectra with numbers of peaks smaller than the set value are not imported.
+
+rt_min_num_peaks = 10
+/(int, 1 - INF)
+/Imported spectra with numbers of peaks smaller than the set value after post-processing are replaced by empty peak set.
+/These spectra will never form edges with other spectra, therefore are equivalently discarded.
 
 rt_mz_range = 0.0,2000.0
 The range of the acceptable m/z. Peaks that are out of the range are discarded.

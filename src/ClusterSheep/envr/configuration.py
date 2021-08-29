@@ -55,6 +55,7 @@ class Configuration:
         self.ii_finished = ParameterBase(False, bool)
         # rank transformation parameters
         self.rt_num_of_peaks = ParameterBase(50, int, range_=(1, 191))
+        self.rt_min_num_peaks = ParameterBase(10, int, range_=(1, INF))
         self.rt_mz_range = ParameterRange((0, 0), int, element_range=(0, INF))
         self.rt_precursor_removal_range = ParameterRange((-18.0, 6.0), float)
         self.rt_bins_per_th = ParameterBase(1, int, range_=(1, INF))
@@ -104,6 +105,7 @@ class Configuration:
                'ii_num_of_threads:' + str(self.ii_num_of_threads) + '\n' + \
                'ii_finished:' + str(self.ii_finished) + '\n' +\
                'rt_num_of_peaks:' + str(self.rt_num_of_peaks) + '\n' + \
+               'rt_min_num_peaks:' + str(self.rt_num_of_peaks) + '\n' + \
                'rt_mz_range:' + str(self.rt_mz_range) + '\n' + \
                'rt_precursor_removal_range:' + str(self.rt_precursor_removal_range) + '\n' +\
                'rt_bins_per_th:' + str(self.rt_bins_per_th) + '\n' + \
@@ -184,6 +186,10 @@ class Configuration:
 
     def func_rt_num_of_peaks(self, value):
         self.rt_num_of_peaks.value = value
+        return
+
+    def func_rt_min_num_peaks(self, value):
+        self.rt_min_num_peaks.value = value
         return
 
     def func_rt_mz_range(self, value):
@@ -322,6 +328,7 @@ class Configuration:
             'ii_min_num_peaks': self.func_ii_min_num_peaks,
             'ii_num_of_threads': self.func_ii_num_of_threads,
             'rt_num_of_peaks': self.func_rt_num_of_peaks,
+            'rt_min_num_peaks': self.func_rt_min_num_peaks,
             'rt_mz_range': self.func_rt_mz_range,
             'rt_precursor_removal_range': self.func_rt_precursor_removal_range,
             'rt_bins_per_th': self.func_rt_bins_per_th,
